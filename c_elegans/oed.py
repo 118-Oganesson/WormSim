@@ -1,6 +1,4 @@
 import numpy as np
-# import load
-
 
 def c_(alpha, x_, y_, x_peak, y_peak):
     return alpha * np.sqrt((x_ - x_peak) ** 2 + (y_ - y_peak) ** 2)
