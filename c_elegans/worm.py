@@ -1,4 +1,8 @@
 import numpy as np
+import plotly.graph_objects as go
+from PIL import Image
+import base64
+import io
 
 
 class Worm:
@@ -113,15 +117,15 @@ class Worm:
 
         return {"N_": N_, "M_": M_, "f_inv": f_inv, "T_": T_}
 
-    def c_(self, x_, y_):
+    def _c_(self, x_, y_):
         return self.alpha * np.sqrt((x_ - self.x_peak) ** 2 + (y_ - self.y_peak) ** 2)
 
-    def c_gauss(self, x_, y_):
+    def _c_gauss(self, x_, y_):
         return self.c_0 * np.exp(
             -((x_ - self.x_peak) ** 2 + (y_ - self.y_peak) ** 2) / (2 * self.lambda_**2)
         )
 
-    def c_two_gauss(self, x_, y_):
+    def _c_two_gauss(self, x_, y_):
         return self.c_0 * (
             np.exp(
                 -((x_ - self.x_peak) ** 2 + (y_ - self.y_peak) ** 2)
@@ -133,7 +137,7 @@ class Worm:
             )
         )
 
-    def y_on_off(self, c_t):
+    def _y_on_off(self, c_t):
         y_on = (
             np.sum(c_t[self.M_ : self.M_ + self.N_]) / self.N
             - np.sum(c_t[0 : self.M_]) / self.M
@@ -143,21 +147,19 @@ class Worm:
         else:
             return y_on * 100 * self.dt, 0
 
-    def sigmoid(self, x):
+    def _sigmoid(self, x):
         return np.exp(np.minimum(x, 0)) / (1 + np.exp(-np.abs(x)))
 
-    def y_osc(self, t):
+    def _y_osc(self, t):
         return np.sin(2 * np.pi * t / self.T)
 
-    def klinotaxis(
-        self,
-    ):
+    def klinotaxis(self):
         # 濃度関数の選択
         concentration = {
-            0: self.c_,
-            1: self.c_gauss,
-            2: self.c_two_gauss,
-        }.get(self.c_mode, self.c_gauss)
+            0: self._c_,
+            1: self._c_gauss,
+            2: self._c_two_gauss,
+        }.get(self.c_mode, self._c_gauss)
 
         # 各種配列の初期化
         t = np.arange(0, self.time, self.dt)
@@ -173,15 +175,17 @@ class Worm:
         # オイラー法
         for k in range(len(t) - 1):
             # シナプス結合およびギャップ結合からの入力
-            synapse = np.dot(self.w.T, self.sigmoid(y[:, k] + self.theta))
-            gap = np.array([np.dot(self.g[:, i], (y[:, k] - y[i, k])) for i in range(8)])
+            synapse = np.dot(self.w.T, self._sigmoid(y[:, k] + self.theta))
+            gap = np.array(
+                [np.dot(self.g[:, i], (y[:, k] - y[i, k])) for i in range(8)]
+            )
 
             # 濃度の更新
             c_t = np.delete(c_t, 0)
             c_t = np.append(c_t, concentration(r[0, k], r[1, k]))
 
             # 介在ニューロンおよび運動ニューロンの膜電位の更新
-            y_on, y_off = self.y_on_off(c_t)
+            y_on, y_off = self._y_on_off(c_t)
             y[:, k + 1] = (
                 y[:, k]
                 + (
@@ -190,7 +194,7 @@ class Worm:
                     + gap
                     + self.w_on * y_on
                     + self.w_off * y_off
-                    + self.w_osc * self.y_osc(t[k])
+                    + self.w_osc * self._y_osc(t[k])
                 )
                 / self.tau
                 * self.dt
@@ -198,10 +202,10 @@ class Worm:
 
             # 方向の更新
             phi[k] = self.w_nmj * (
-                self.sigmoid(y[5, k] + self.theta[5])
-                + self.sigmoid(y[6, k] + self.theta[6])
-                - self.sigmoid(y[4, k] + self.theta[4])
-                - self.sigmoid(y[7, k] + self.theta[7])
+                self._sigmoid(y[5, k] + self.theta[5])
+                + self._sigmoid(y[6, k] + self.theta[6])
+                - self._sigmoid(y[4, k] + self.theta[4])
+                - self._sigmoid(y[7, k] + self.theta[7])
             )
             mu[k + 1] = mu[k] + phi[k] * self.dt
 
@@ -212,3 +216,345 @@ class Worm:
             )
 
         return r
+
+    def _generate_concentration_map(self, x, y):
+        x, y = np.meshgrid(x, y)
+        concentration = {
+            0: self._c_,
+            1: self._c_gauss,
+            2: self._c_two_gauss,
+        }.get(self.c_mode, self._c_gauss)
+        return concentration(x, y)
+
+    def _save_concentration_map_as_base64(
+        self, x, y, z, color_scale, opacity=1, size=(300, 300)
+    ):
+        """濃度マップを画像として保存し、Base64形式で返す"""
+        fig = go.Figure(
+            data=go.Heatmap(
+                z=z,
+                x=x,
+                y=y,
+                colorscale=color_scale,
+                opacity=opacity,
+                colorbar=dict(ticks="", tickvals=[], ticktext=[], len=0),
+                showscale=False,
+            )
+        )
+        fig.update_layout(
+            width=size[0],
+            height=size[1],
+            margin=dict(l=0, r=0, t=0, b=0),
+            xaxis=dict(visible=False, showticklabels=False, zeroline=False),
+            yaxis=dict(visible=False, showticklabels=False, zeroline=False),
+            plot_bgcolor="rgba(0, 0, 0, 0)",
+            paper_bgcolor="rgba(0, 0, 0, 0)",
+        )
+        img_buffer = io.BytesIO()
+        fig.write_image(img_buffer, format="PNG")
+        img_buffer.seek(0)
+        img_base64 = base64.b64encode(img_buffer.read()).decode("utf-8")
+        img_buffer.close()
+        return img_base64
+
+    def _image_to_base64(self, image):
+        """画像をBase64形式に変換する関数"""
+        buffer = io.BytesIO()
+        image.save(buffer, format="PNG")
+        img_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+        buffer.close()
+        return img_base64
+
+    def create_klintaxis_animation(
+        self,
+        trajectory,
+        downsampling_factor=100,
+        concentration_x_range=(-15, 15),
+        concentration_y_range=(-15, 15),
+        color_scheme=None,
+        figure_size=(800, 500),
+        padding=1,
+        animation_duration=50,
+    ):
+        # スタートポイントとピークポイントの定義
+        start_point = [0, 0]
+        peak_point = [self.x_peak, self.y_peak]
+
+        # トラジェクトリーのダウンサンプリング
+        x_downsampled, y_downsampled = (
+            trajectory[0][::downsampling_factor],
+            trajectory[1][::downsampling_factor],
+        )
+
+        # x_downsampled, y_downsampled, peak_point を使用して範囲を計算
+        x_min = min(min(x_downsampled), peak_point[0])
+        x_max = max(max(x_downsampled), peak_point[0])
+
+        y_min = min(min(y_downsampled), peak_point[1])
+        y_max = max(max(y_downsampled), peak_point[1])
+
+        # 時間の計算とダウンサンプリング
+        time = np.arange(0, self.time, self.dt)
+        time_downsampled = time[::downsampling_factor]
+
+        # 濃度マップ計算
+        concentration_x = np.linspace(
+            concentration_x_range[0], concentration_x_range[1], num=500
+        )
+        concentration_y = np.linspace(
+            concentration_y_range[0], concentration_y_range[1], num=500
+        )
+        concentration_z = self._generate_concentration_map(
+            concentration_x, concentration_y
+        )
+
+        # カラーマップ設定
+        if color_scheme is None:
+            color_scheme = [
+                "#ffffff",
+                "#f7fbff",
+                "#eff7ff",
+                "#dfefff",
+                "#cfe7ff",
+                "#bfdfff",
+                "#afd7ff",
+                "#9fcfff",
+                "#8fc7ff",
+            ]
+
+        # 濃度マップ画像のBase64変換
+        base64_concentration_image = self._save_concentration_map_as_base64(
+            concentration_x, concentration_y, concentration_z, color_scheme
+        )
+        base64_concentration_source = (
+            f"data:image/png;base64,{base64_concentration_image}"
+        )
+
+        # 線虫画像の処理（回転、反転）
+        base_image = Image.open("./c_elegans.png")
+        worm_rotated_image = base_image.rotate(-60, expand=True)
+        worm_flipped_image = worm_rotated_image.transpose(Image.FLIP_LEFT_RIGHT)
+        base64_worm_rotated_image = self._image_to_base64(worm_rotated_image)
+        base64_worm_flipped_image = self._image_to_base64(worm_flipped_image)
+
+        # プロットの作成
+        fig = go.Figure()
+
+        fig.add_trace(
+            go.Scatter(
+                x=[start_point[0], 0.001],
+                y=[start_point[1], 0.001],
+                mode="lines",
+                marker=dict(size=1, color="gray"),
+                name="Trajectory",
+            )
+        )
+
+        # 背景画像設定
+        fig.add_layout_image(
+            dict(
+                source=base64_concentration_source,
+                xref="x",
+                yref="y",
+                x=concentration_x_range[0],
+                y=concentration_y_range[1],
+                sizex=concentration_x_range[1] - concentration_x_range[0],
+                sizey=concentration_y_range[1] - concentration_y_range[0],
+                opacity=1,
+                layer="below",
+            )
+        )
+
+        # 開始点とピーク点のプロット
+        fig.add_trace(
+            go.Scatter(
+                x=[start_point[0]],
+                y=[start_point[1]],
+                mode="markers",
+                marker=dict(size=10, color="black"),
+                name="Starting Point",
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=[peak_point[0]],
+                y=[peak_point[1]],
+                mode="markers",
+                marker=dict(size=10, color="black", symbol="x"),
+                name="Gradient Peak",
+            )
+        )
+
+        # 1cmラインとテキスト
+        fig.add_trace(
+            go.Scatter(
+                x=[peak_point[0] - 0.5, peak_point[0] + 0.5],
+                y=[peak_point[1] - 1, peak_point[1] - 1],
+                mode="lines",
+                line=dict(color="black", width=1.5),
+                name="Scale Line",
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=[peak_point[0]],
+                y=[peak_point[1] - 0.95],
+                mode="text",
+                text=["1 cm"],
+                textposition="top center",
+                showlegend=False,
+            )
+        )
+
+        # アニメーションフレーム作成
+        frames = []
+        for idx in range(1, len(x_downsampled)):
+            dx = x_downsampled[idx] - x_downsampled[idx - 1]
+
+            worm_image_source = "data:image/png;base64," + (
+                base64_worm_rotated_image if dx > 0 else base64_worm_flipped_image
+            )
+
+            frames.append(
+                go.Frame(
+                    data=[
+                        go.Scatter(
+                            x=x_downsampled[:idx],
+                            y=y_downsampled[:idx],
+                            mode="lines",
+                            line=dict(color="gray", width=2, shape="spline"),
+                            name="Trajectory",
+                        ),
+                    ],
+                    layout=go.Layout(
+                        images=[
+                            dict(
+                                source=base64_concentration_source,
+                                xref="x",
+                                yref="y",
+                                x=concentration_x_range[0],
+                                y=concentration_y_range[1],
+                                sizex=concentration_x_range[1]
+                                - concentration_x_range[0],
+                                sizey=concentration_y_range[1]
+                                - concentration_y_range[0],
+                                opacity=1,
+                                layer="below",
+                            ),
+                            dict(
+                                source=worm_image_source,
+                                x=x_downsampled[idx],
+                                y=y_downsampled[idx],
+                                xref="x",
+                                yref="y",
+                                sizex=0.5,
+                                sizey=0.5,
+                                xanchor="center",
+                                yanchor="middle",
+                                layer="above",
+                            ),
+                        ]
+                    ),
+                    name=str(idx),
+                )
+            )
+
+        # アニメーション設定
+        fig.frames = frames
+        fig.update_layout(
+            title="C. elegans and the Salt Gradient: Klinotaxis in Action",
+            title_x=0.5,
+            title_xanchor="center",
+            template="plotly_white",
+            xaxis=dict(
+                showgrid=False,
+                zeroline=False,
+                showticklabels=False,
+                range=[x_min - padding, x_max + padding],
+            ),
+            yaxis=dict(
+                showgrid=False,
+                zeroline=False,
+                showticklabels=False,
+                range=[y_min - padding, y_max + padding],
+            ),
+            plot_bgcolor="white",
+            width=figure_size[0],
+            height=figure_size[1],
+            xaxis_scaleanchor="y",
+            legend=dict(
+                x=0.5,
+                y=0.0,
+                xanchor="center",
+                yanchor="top",
+                orientation="h",
+            ),
+            updatemenus=[
+                {
+                    "buttons": [
+                        {
+                            "args": [
+                                None,
+                                {
+                                    "frame": {
+                                        "duration": animation_duration,
+                                        "redraw": True,
+                                    },
+                                    "fromcurrent": True,
+                                },
+                            ],
+                            "label": "&#9654;",
+                            "method": "animate",
+                        },
+                        {
+                            "args": [
+                                [None],
+                                {
+                                    "frame": {"duration": 0, "redraw": False},
+                                    "mode": "immediate",
+                                    "transition": {"duration": 0},
+                                },
+                            ],
+                            "label": "&#9724;",
+                            "method": "animate",
+                        },
+                    ],
+                    "direction": "left",
+                    "pad": {"r": 10, "t": 87},
+                    "showactive": False,
+                    "type": "buttons",
+                    "x": 0.1,
+                    "xanchor": "right",
+                    "y": 0,
+                    "yanchor": "top",
+                }
+            ],
+            sliders=[
+                {
+                    "yanchor": "top",
+                    "xanchor": "left",
+                    "x": 0.1,
+                    "y": -0.1,
+                    "steps": [
+                        {
+                            "args": [
+                                [frame.name],
+                                {
+                                    "frame": {
+                                        "duration": animation_duration,
+                                        "redraw": True,
+                                    },
+                                    "mode": "immediate",
+                                    "transition": {"duration": 0},
+                                },
+                            ],
+                            "label": f"{time_downsampled[idx]:.1f}s",
+                            "method": "animate",
+                        }
+                        for idx, frame in enumerate(fig.frames)
+                    ],
+                }
+            ],
+        )
+
+        return fig

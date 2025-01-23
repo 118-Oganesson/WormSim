@@ -1,7 +1,6 @@
 import streamlit as st
 import plotly.graph_objects as go
 import c_elegans.worm as worm
-from c_elegans.plot import create_klintaxis_animation
 
 # 変数の定義
 gene = [
@@ -46,16 +45,17 @@ const = {
 
 c_mode = 1
 
-# ここでWormオブジェクトを生成
-c_elegans = worm.Worm(gene, const, c_mode)
-data = c_elegans.klinotaxis()
+# StreamlitのUI設定
+st.title("C. elegans Simulation")
 
-x = data[0]
-y = data[1]
+# ボタンを配置
+if st.button("Run Simulation"):
+    # ローディングインジケーター表示
+    with st.spinner("Calculating trajectory..."):
+        # 計算とアニメーション生成
+        c_elegans = worm.Worm(gene, const, c_mode)
+        trajectory = c_elegans.klinotaxis()
+        fig = c_elegans.create_klintaxis_animation(trajectory)
 
-# アニメーションの作成
-fig = create_klintaxis_animation(x, y, const, c_mode)
-
-# Streamlitの表示
-st.title("Caenorhabditis elegans Chemotaxis Simulation")
-st.plotly_chart(fig)  # Plotlyアニメーションの表示
+    # 計算完了後、アニメーションを表示
+    st.plotly_chart(fig)
