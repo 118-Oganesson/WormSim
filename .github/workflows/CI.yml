@@ -42,8 +42,7 @@ jobs:
         with:
           python-version: 3.x
       - name: Install maturin numpy
-        run: pip install numpy --upgrade
-        run: pip install maturin --upgrade
+        run: pip install numpy --upgrade && pip install maturin --upgrade
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
