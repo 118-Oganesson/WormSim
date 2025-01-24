@@ -51,7 +51,7 @@ c_mode = 1
 st.title("C. elegans Simulation")
 
 # ボタンを配置
-if st.button("Run Simulation"):
+if st.button("Run Simulation Python"):
     # ローディングインジケーター表示
     start_time = time.time()  # 処理開始時間記録
     with st.spinner("Calculating trajectory..."):
