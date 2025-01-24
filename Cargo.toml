@@ -9,7 +9,7 @@ name = "wormsim"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = "0.23.3"
-numpy = "0.23.0"
+pyo3 = "0.22"
+numpy = "0.22"
 rand = "0.8.5"
 dict_derive = "0.6"
