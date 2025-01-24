@@ -1,6 +1,8 @@
 import streamlit as st
 import plotly.graph_objects as go
-import c_elegans.worm as worm
+import wormsim.worm as worm
+import wormsim_rs as rs
+import time
 
 # 変数の定義
 gene = [
@@ -51,11 +53,43 @@ st.title("C. elegans Simulation")
 # ボタンを配置
 if st.button("Run Simulation"):
     # ローディングインジケーター表示
+    start_time = time.time()  # 処理開始時間記録
     with st.spinner("Calculating trajectory..."):
-        # 計算とアニメーション生成
         c_elegans = worm.Worm(gene, const, c_mode)
         trajectory = c_elegans.klinotaxis()
+    mid_time = time.time()  # 計算後の時間記録
+    with st.spinner("Creating animation..."):
         fig = c_elegans.create_klintaxis_animation(trajectory)
+        st.plotly_chart(fig)
+    end_time = time.time()  # アニメーション作成後の時間記録
 
-    # 計算完了後、アニメーションを表示
-    st.plotly_chart(fig)
+    # 経過時間を表示
+    calculation_time = mid_time - start_time
+    animation_time = end_time - mid_time
+    total_time = end_time - start_time
+
+    st.write(f"Calculation time: {calculation_time:.2f} seconds")
+    st.write(f"Animation creation time: {animation_time:.2f} seconds")
+    st.write(f"Total time: {total_time:.2f} seconds")
+
+# ボタンを配置
+if st.button("Run Simulation Rust"):
+    # ローディングインジケーター表示
+    start_time = time.time()  # 処理開始時間記録
+    with st.spinner("Calculating trajectory..."):
+        c_elegans = worm.Worm(gene, const, c_mode)
+        trajectory = rs.klinotaxis({"gene": gene}, const, c_mode)
+    mid_time = time.time()  # 計算後の時間記録
+    with st.spinner("Creating animation..."):
+        fig = c_elegans.create_klintaxis_animation(trajectory)
+        st.plotly_chart(fig)
+    end_time = time.time()  # アニメーション作成後の時間記録
+
+    # 経過時間を表示
+    calculation_time = mid_time - start_time
+    animation_time = end_time - mid_time
+    total_time = end_time - start_time
+
+    st.write(f"Calculation time: {calculation_time:.2f} seconds")
+    st.write(f"Animation creation time: {animation_time:.2f} seconds")
+    st.write(f"Total time: {total_time:.2f} seconds")

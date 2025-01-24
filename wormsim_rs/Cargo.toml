@@ -1,0 +1,15 @@
+[package]
+name = "wormsim_rs"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "wormsim_rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = "0.23.3"
+numpy = "0.23.0"
+rand = "0.8.5"
+dict_derive = "0.6"

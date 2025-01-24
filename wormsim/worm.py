@@ -227,7 +227,7 @@ class Worm:
         return concentration(x, y)
 
     def _save_concentration_map_as_base64(
-        self, x, y, z, color_scale, opacity=1, size=(300, 300)
+        self, x, y, z, color_scale, opacity=1, size=(100, 100)
     ):
         """濃度マップを画像として保存し、Base64形式で返す"""
         fig = go.Figure(
@@ -271,6 +271,8 @@ class Worm:
         downsampling_factor=100,
         concentration_x_range=(-15, 15),
         concentration_y_range=(-15, 15),
+        concentration_num=500,
+        concentration_size=(100, 100),
         color_scheme=None,
         figure_size=(800, 500),
         padding=1,
@@ -299,10 +301,14 @@ class Worm:
 
         # 濃度マップ計算
         concentration_x = np.linspace(
-            concentration_x_range[0], concentration_x_range[1], num=500
+            concentration_x_range[0],
+            concentration_x_range[1],
+            num=concentration_num,
         )
         concentration_y = np.linspace(
-            concentration_y_range[0], concentration_y_range[1], num=500
+            concentration_y_range[0],
+            concentration_y_range[1],
+            num=concentration_num,
         )
         concentration_z = self._generate_concentration_map(
             concentration_x, concentration_y
@@ -324,7 +330,11 @@ class Worm:
 
         # 濃度マップ画像のBase64変換
         base64_concentration_image = self._save_concentration_map_as_base64(
-            concentration_x, concentration_y, concentration_z, color_scheme
+            concentration_x,
+            concentration_y,
+            concentration_z,
+            color_scheme,
+            size=concentration_size,
         )
         base64_concentration_source = (
             f"data:image/png;base64,{base64_concentration_image}"
@@ -403,6 +413,7 @@ class Worm:
                 text=["1 cm"],
                 textposition="top center",
                 showlegend=False,
+                textfont=dict(color="black"),  # テキストの色を黒に設定
             )
         )
 
