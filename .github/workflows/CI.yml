@@ -41,8 +41,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
-      - name: Install maturin numpy
-        run: pip install numpy --upgrade && pip install maturin --upgrade
+      - name: Install maturin
+        run: pip install maturin --upgrade
+      - name: Setup environment for ppc64le
+        if: matrix.platform.target == 'ppc64le'
+        run: |
+          export CARGO_CFG_PYO3_NO_PY_GIL=0
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
