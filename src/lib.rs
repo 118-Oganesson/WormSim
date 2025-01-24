@@ -107,7 +107,7 @@ pub fn klinotaxis(
 
 /// A Python module implemented in Rust.
 #[pymodule]
-fn wormsim_rs(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn wormsim(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(klinotaxis, m)?)?;
     Ok(())
 }
