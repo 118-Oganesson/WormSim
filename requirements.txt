@@ -31,7 +31,6 @@ markdown-it-py==3.0.0
 MarkupSafe==3.0.2
 matplotlib==3.10.0
 matplotlib-inline==0.1.7
-maturin==1.8.1
 mdurl==0.1.2
 narwhals==1.22.0
 nbformat==5.10.4
@@ -73,4 +72,3 @@ tzdata==2024.2
 urllib3==2.3.0
 watchdog==6.0.0
 wcwidth==0.2.13
--e git+https://github.com/118-Oganesson/WormSim.git@64c5fa29faff13902e33429c234bf7983f4d2dc7#egg=wormsim_rs&subdirectory=wormsim_rs
