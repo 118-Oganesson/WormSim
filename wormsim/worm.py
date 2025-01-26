@@ -304,7 +304,6 @@ class Worm:
         self,
         trajectory,
         downsampling_factor=100,
-        figure_size=(800, 500),
         padding=1,
         animation_duration=10,
     ):
@@ -485,8 +484,6 @@ class Worm:
                 range=[y_min - padding, y_max + padding],
             ),
             plot_bgcolor="white",
-            width=figure_size[0],
-            height=figure_size[1],
             xaxis_scaleanchor="y",
             legend=dict(
                 x=0.5,
@@ -570,7 +567,6 @@ class Worm:
 
     def create_concentration_map(
         self,
-        figure_size=(500, 500),
         padding=1,
     ):
         # スタートポイントとピークポイントの定義
@@ -675,8 +671,6 @@ class Worm:
                 range=[y_min - padding, y_max + padding],
             ),
             plot_bgcolor="white",
-            width=figure_size[0],
-            height=figure_size[1],
             xaxis_scaleanchor="y",
             legend=dict(
                 x=0.5,
