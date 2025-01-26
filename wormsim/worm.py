@@ -48,7 +48,7 @@ class Worm:
         # 濃度マップの設定
         self.concentration_x_range = (-15, 15)
         self.concentration_y_range = (-15, 15)
-        self.concentration_num = 500
+        self.concentration_num = 100
         self.color_scheme = [
             "#ffffff",
             "#f7fbff",
@@ -583,7 +583,7 @@ class Worm:
 
     def create_concentration_map(
         self,
-        figure_size=(800, 500),
+        figure_size=(500, 500),
         padding=1,
     ):
         # スタートポイントとピークポイントの定義

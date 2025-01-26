@@ -21,21 +21,21 @@ gene = [
     0.9494528443702027,
     0.7727883271643218,
     -0.6046043758402895,
-    0.7969062294208619
+    0.7969062294208619,
 ]
 
 [const]
 alpha = -0.01
-c_0 = 1
+c_0 = 1.0
 lambda = 1.61
 x_peak = 4.5
 y_peak = 0.0
 dt = 0.01
 periodic_time = 4.2
 frequency = 0.033
-mu_0 = 0
+mu_0 = 0.0
 velocity = 0.022
-simulation_time = 300
+simulation_time = 300.0
 time_constant = 0.1
 
 [c_mode]

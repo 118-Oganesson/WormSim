@@ -9,28 +9,47 @@ gene = config["gene"]
 const = config["const"]
 c_mode = config["c_mode"]
 
-# StreamlitのUI設定
-st.title("C. elegans Simulator")
-
+# 線虫
 c_elegans = worm.Worm(gene, const, c_mode)
 
-c_elegans.x_peak = st.slider(
-    "x_peak",
-    min_value=0.0,
-    max_value=10.0,
-    value=4.5,
-    step=0.1,
-)
-c_elegans.y_peak = st.slider(
-    "y_peak",
-    min_value=-5.0,
-    max_value=5.0,
-    value=0.0,
-    step=0.1,
-)
+# StreamlitのUI設定
+st.title("C. elegans Simulator")
+st.header("Setting")
+col1, col2 = st.columns([3, 1])
+with col2:
+    st.subheader("Gradient Peak")
+    c_elegans.x_peak = st.slider(
+        "X",
+        min_value=0.0,
+        max_value=10.0,
+        value=const["x_peak"],
+        step=0.1,
+    )
+    c_elegans.y_peak = st.slider(
+        "Y",
+        min_value=-5.0,
+        max_value=5.0,
+        value=const["y_peak"],
+        step=0.1,
+    )
+    c_elegans.c_0 = st.slider(
+        "C_0",
+        min_value=0.0,
+        max_value=5.0,
+        value=const["c_0"],
+        step=0.1,
+    )
+    c_elegans.lambda_ = st.slider(
+        "lambda",
+        min_value=0.0,
+        max_value=5.0,
+        value=const["lambda"],
+        step=0.1,
+    )
 
-fig = c_elegans.create_concentration_map()
-st.plotly_chart(fig)
+with col1:
+    fig = c_elegans.create_concentration_map()
+    st.plotly_chart(fig)
 
 
 # ボタンを配置
