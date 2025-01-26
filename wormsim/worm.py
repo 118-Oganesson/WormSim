@@ -1,3 +1,4 @@
+import wormsim_rs
 import numpy as np
 import plotly.graph_objects as go
 from PIL import Image
@@ -6,10 +7,9 @@ import io
 
 
 class Worm:
-    def __init__(self, gene, const, c_mode):
+    def __init__(self, gene, const, c_mode, using_rust=True):
         self.gene = gene
-        self.const = const
-        self.c_mode = c_mode
+        self.c_mode = c_mode["c_mode"]
 
         # 定数の設定
         self.alpha = const["alpha"]
@@ -25,24 +25,42 @@ class Worm:
         self.time = const["simulation_time"]
         self.tau = const["time_constant"]
 
-        # 遺伝子パラメータの設定
-        weights = self._generate_weights()
-        self.N = weights["N"]
-        self.M = weights["M"]
-        self.theta = weights["theta"]
-        self.w_on = weights["w_on"]
-        self.w_off = weights["w_off"]
-        self.w = weights["w"]
-        self.g = weights["g"]
-        self.w_osc = weights["w_osc"]
-        self.w_nmj = weights["w_nmj"]
+        if not using_rust:
+            # 遺伝子パラメータの設定
+            weights = self._generate_weights()
+            self.N = weights["N"]
+            self.M = weights["M"]
+            self.theta = weights["theta"]
+            self.w_on = weights["w_on"]
+            self.w_off = weights["w_off"]
+            self.w = weights["w"]
+            self.g = weights["g"]
+            self.w_osc = weights["w_osc"]
+            self.w_nmj = weights["w_nmj"]
 
-        # 時間に関する定数の設定
-        params = self._generate_time_constant_to_step()
-        self.N_ = params["N_"]
-        self.M_ = params["M_"]
-        self.f_inv = params["f_inv"]
-        self.T_ = params["T_"]
+            # 時間に関する定数の設定
+            params = self._generate_time_constant_to_step()
+            self.N_ = params["N_"]
+            self.M_ = params["M_"]
+            self.f_inv = params["f_inv"]
+            self.T_ = params["T_"]
+
+        # 濃度マップの設定
+        self.concentration_x_range = (-15, 15)
+        self.concentration_y_range = (-15, 15)
+        self.concentration_num = 500
+        self.color_scheme = [
+            "#ffffff",
+            "#f7fbff",
+            "#eff7ff",
+            "#dfefff",
+            "#cfe7ff",
+            "#bfdfff",
+            "#afd7ff",
+            "#9fcfff",
+            "#8fc7ff",
+        ]
+        self.opacity = 1
 
     def _generate_weights(self):
         def gene_range(gene, min, max, num_values=1):
@@ -53,48 +71,48 @@ class Worm:
             )
 
         # 感覚ニューロン時間 [0.1, 4.2]
-        N = gene_range(self.gene[0], 0.1, 4.2)
-        M = gene_range(self.gene[1], 0.1, 4.2)
+        N = gene_range(self.gene["gene"][0], 0.1, 4.2)
+        M = gene_range(self.gene["gene"][1], 0.1, 4.2)
 
         # 介在ニューロンと運動ニューロンの閾値 [-15, 15]
         theta = np.zeros(8)
-        theta[0] = gene_range(self.gene[2], -15, 15)
-        theta[1] = gene_range(self.gene[3], -15, 15)
-        theta[2] = gene_range(self.gene[4], -15, 15)
-        theta[3] = gene_range(self.gene[5], -15, 15)
-        theta[4], theta[5] = gene_range(self.gene[6], -15, 15, 2)
-        theta[6], theta[7] = gene_range(self.gene[7], -15, 15, 2)
+        theta[0] = gene_range(self.gene["gene"][2], -15, 15)
+        theta[1] = gene_range(self.gene["gene"][3], -15, 15)
+        theta[2] = gene_range(self.gene["gene"][4], -15, 15)
+        theta[3] = gene_range(self.gene["gene"][5], -15, 15)
+        theta[4], theta[5] = gene_range(self.gene["gene"][6], -15, 15, 2)
+        theta[6], theta[7] = gene_range(self.gene["gene"][7], -15, 15, 2)
 
         # 感覚ニューロンON/OFFの重み [-15, 15]
         w_on = np.zeros(8)
-        w_on[0] = gene_range(self.gene[8], -15, 15)
-        w_on[1] = gene_range(self.gene[9], -15, 15)
+        w_on[0] = gene_range(self.gene["gene"][8], -15, 15)
+        w_on[1] = gene_range(self.gene["gene"][9], -15, 15)
 
         w_off = np.zeros(8)
-        w_off[0] = gene_range(self.gene[10], -15, 15)
-        w_off[1] = gene_range(self.gene[11], -15, 15)
+        w_off[0] = gene_range(self.gene["gene"][10], -15, 15)
+        w_off[1] = gene_range(self.gene["gene"][11], -15, 15)
 
         # 介在ニューロンと運動ニューロンのシナプス結合の重み [-15, 15]
         w = np.zeros((8, 8))
-        w[0, 2] = gene_range(self.gene[12], -15, 15)
-        w[1, 3] = gene_range(self.gene[13], -15, 15)
-        w[2, 4], w[2, 5] = gene_range(self.gene[14], -15, 15, 2)
-        w[3, 6], w[3, 7] = gene_range(self.gene[15], -15, 15, 2)
-        w[4, 4], w[5, 5] = gene_range(self.gene[16], -15, 15, 2)
-        w[6, 6], w[7, 7] = gene_range(self.gene[17], -15, 15, 2)
+        w[0, 2] = gene_range(self.gene["gene"][12], -15, 15)
+        w[1, 3] = gene_range(self.gene["gene"][13], -15, 15)
+        w[2, 4], w[2, 5] = gene_range(self.gene["gene"][14], -15, 15, 2)
+        w[3, 6], w[3, 7] = gene_range(self.gene["gene"][15], -15, 15, 2)
+        w[4, 4], w[5, 5] = gene_range(self.gene["gene"][16], -15, 15, 2)
+        w[6, 6], w[7, 7] = gene_range(self.gene["gene"][17], -15, 15, 2)
 
         # 介在ニューロンと運動ニューロンのギャップ結合の重み [0, 2.5]
         g = np.zeros((8, 8))
-        g[0, 1], g[1, 0] = gene_range(self.gene[18], 0, 2.5, 2)
-        g[2, 3], g[3, 2] = gene_range(self.gene[19], 0, 2.5, 2)
+        g[0, 1], g[1, 0] = gene_range(self.gene["gene"][18], 0, 2.5, 2)
+        g[2, 3], g[3, 2] = gene_range(self.gene["gene"][19], 0, 2.5, 2)
 
         # 運動ニューロンに入る振動成分の重み [0, 15]
         w_osc = np.zeros(8)
-        w_osc[4], w_osc[7] = gene_range(self.gene[20], 0, 15, 2)
+        w_osc[4], w_osc[7] = gene_range(self.gene["gene"][20], 0, 15, 2)
         w_osc[5], w_osc[6] = -w_osc[4], -w_osc[4]
 
         # 回転角度の重み [1, 3]
-        w_nmj = gene_range(self.gene[21], 1, 3)
+        w_nmj = gene_range(self.gene["gene"][21], 1, 3)
 
         return {
             "N": N,
@@ -217,6 +235,24 @@ class Worm:
 
         return r
 
+    def klinotaxis_rs(self):
+        const = {
+            "alpha": self.alpha,
+            "c_0": self.c_0,
+            "lambda": self.lambda_,
+            "x_peak": self.x_peak,
+            "y_peak": self.y_peak,
+            "dt": self.dt,
+            "periodic_time": self.T,
+            "frequency": self.f,
+            "mu_0": self.mu_0,
+            "velocity": self.v,
+            "simulation_time": self.time,
+            "time_constant": self.tau,
+        }
+
+        return wormsim_rs.klinotaxis(self.gene, const, self.c_mode)
+
     def _generate_concentration_map(self, x, y):
         x, y = np.meshgrid(x, y)
         concentration = {
@@ -226,17 +262,26 @@ class Worm:
         }.get(self.c_mode, self._c_gauss)
         return concentration(x, y)
 
-    def _save_concentration_map_as_base64(
-        self, x, y, z, color_scale, opacity=1, size=(100, 100)
-    ):
+    def _save_concentration_map_as_base64(self, size=(100, 100)):
         """濃度マップを画像として保存し、Base64形式で返す"""
+        x = np.linspace(
+            self.concentration_x_range[0],
+            self.concentration_x_range[1],
+            num=self.concentration_num,
+        )
+        y = np.linspace(
+            self.concentration_y_range[0],
+            self.concentration_y_range[1],
+            num=self.concentration_num,
+        )
+        z = self._generate_concentration_map(x, y)
         fig = go.Figure(
             data=go.Heatmap(
                 z=z,
                 x=x,
                 y=y,
-                colorscale=color_scale,
-                opacity=opacity,
+                colorscale=self.color_scheme,
+                opacity=self.opacity,
                 colorbar=dict(ticks="", tickvals=[], ticktext=[], len=0),
                 showscale=False,
             )
@@ -269,14 +314,10 @@ class Worm:
         self,
         trajectory,
         downsampling_factor=100,
-        concentration_x_range=(-15, 15),
-        concentration_y_range=(-15, 15),
-        concentration_num=500,
         concentration_size=(100, 100),
-        color_scheme=None,
         figure_size=(800, 500),
         padding=1,
-        animation_duration=50,
+        animation_duration=10,
     ):
         # スタートポイントとピークポイントの定義
         start_point = [0, 0]
@@ -299,41 +340,8 @@ class Worm:
         time = np.arange(0, self.time, self.dt)
         time_downsampled = time[::downsampling_factor]
 
-        # 濃度マップ計算
-        concentration_x = np.linspace(
-            concentration_x_range[0],
-            concentration_x_range[1],
-            num=concentration_num,
-        )
-        concentration_y = np.linspace(
-            concentration_y_range[0],
-            concentration_y_range[1],
-            num=concentration_num,
-        )
-        concentration_z = self._generate_concentration_map(
-            concentration_x, concentration_y
-        )
-
-        # カラーマップ設定
-        if color_scheme is None:
-            color_scheme = [
-                "#ffffff",
-                "#f7fbff",
-                "#eff7ff",
-                "#dfefff",
-                "#cfe7ff",
-                "#bfdfff",
-                "#afd7ff",
-                "#9fcfff",
-                "#8fc7ff",
-            ]
-
         # 濃度マップ画像のBase64変換
         base64_concentration_image = self._save_concentration_map_as_base64(
-            concentration_x,
-            concentration_y,
-            concentration_z,
-            color_scheme,
             size=concentration_size,
         )
         base64_concentration_source = (
@@ -366,10 +374,10 @@ class Worm:
                 source=base64_concentration_source,
                 xref="x",
                 yref="y",
-                x=concentration_x_range[0],
-                y=concentration_y_range[1],
-                sizex=concentration_x_range[1] - concentration_x_range[0],
-                sizey=concentration_y_range[1] - concentration_y_range[0],
+                x=self.concentration_x_range[0],
+                y=self.concentration_y_range[1],
+                sizex=self.concentration_x_range[1] - self.concentration_x_range[0],
+                sizey=self.concentration_y_range[1] - self.concentration_y_range[0],
                 opacity=1,
                 layer="below",
             )
@@ -413,7 +421,7 @@ class Worm:
                 text=["1 cm"],
                 textposition="top center",
                 showlegend=False,
-                textfont=dict(color="black"),  # テキストの色を黒に設定
+                textfont=dict(color="black"),
             )
         )
 
@@ -443,12 +451,12 @@ class Worm:
                                 source=base64_concentration_source,
                                 xref="x",
                                 yref="y",
-                                x=concentration_x_range[0],
-                                y=concentration_y_range[1],
-                                sizex=concentration_x_range[1]
-                                - concentration_x_range[0],
-                                sizey=concentration_y_range[1]
-                                - concentration_y_range[0],
+                                x=self.concentration_x_range[0],
+                                y=self.concentration_y_range[1],
+                                sizex=self.concentration_x_range[1]
+                                - self.concentration_x_range[0],
+                                sizey=self.concentration_y_range[1]
+                                - self.concentration_y_range[0],
                                 opacity=1,
                                 layer="below",
                             ),
@@ -500,6 +508,7 @@ class Worm:
                 yanchor="top",
                 orientation="h",
             ),
+            dragmode="pan",
             updatemenus=[
                 {
                     "buttons": [
@@ -538,6 +547,7 @@ class Worm:
                     "xanchor": "right",
                     "y": 0,
                     "yanchor": "top",
+                    "font": {"color": "black"},
                 }
             ],
             sliders=[
@@ -564,8 +574,125 @@ class Worm:
                         }
                         for idx, frame in enumerate(fig.frames)
                     ],
+                    "font": {"color": "black"},
                 }
             ],
         )
 
+        return fig
+
+    def create_concentration_map(
+        self,
+        figure_size=(800, 500),
+        padding=1,
+    ):
+        # スタートポイントとピークポイントの定義
+        start_point = [0, 0]
+        peak_point = [self.x_peak, self.y_peak]
+
+        # 表示範囲を計算
+        x_min = min(start_point[0], peak_point[0])
+        x_max = max(start_point[0], peak_point[0])
+
+        y_min = min(start_point[1], peak_point[1])
+        y_max = max(start_point[1], peak_point[1])
+
+        x = np.linspace(
+            self.concentration_x_range[0],
+            self.concentration_x_range[1],
+            num=self.concentration_num,
+        )
+        y = np.linspace(
+            self.concentration_y_range[0],
+            self.concentration_y_range[1],
+            num=self.concentration_num,
+        )
+        z = self._generate_concentration_map(x, y)
+
+        # 濃度のヒートマップのプロット
+        fig = go.Figure(
+            data=go.Heatmap(
+                z=z,
+                x=x,
+                y=y,
+                colorscale=self.color_scheme,
+                opacity=self.opacity,
+                colorbar=dict(
+                    title="Concentration (mM)",
+                    titleside="right",
+                    tickformat=".2f",
+                    len=1.0,
+                ),
+                showscale=True,
+            )
+        )
+
+        # 開始点とピーク点のプロット
+        fig.add_trace(
+            go.Scatter(
+                x=[start_point[0]],
+                y=[start_point[1]],
+                mode="markers",
+                marker=dict(size=10, color="black"),
+                name="Starting Point",
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=[peak_point[0]],
+                y=[peak_point[1]],
+                mode="markers",
+                marker=dict(size=10, color="black", symbol="x"),
+                name="Gradient Peak",
+            )
+        )
+
+        # 1cmラインとテキスト
+        fig.add_trace(
+            go.Scatter(
+                x=[peak_point[0] - 0.5, peak_point[0] + 0.5],
+                y=[peak_point[1] - 1, peak_point[1] - 1],
+                mode="lines",
+                line=dict(color="black", width=1.5),
+                name="Scale Line",
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=[peak_point[0]],
+                y=[peak_point[1] - 0.95],
+                mode="text",
+                text=["1 cm"],
+                textposition="top center",
+                showlegend=False,
+                textfont=dict(color="black"),
+            )
+        )
+
+        fig.update_layout(
+            xaxis=dict(
+                showgrid=False,
+                zeroline=False,
+                showticklabels=False,
+                range=[x_min - padding, x_max + padding],
+            ),
+            yaxis=dict(
+                showgrid=False,
+                zeroline=False,
+                showticklabels=False,
+                range=[y_min - padding, y_max + padding],
+            ),
+            plot_bgcolor="white",
+            width=figure_size[0],
+            height=figure_size[1],
+            xaxis_scaleanchor="y",
+            legend=dict(
+                x=0.5,
+                y=0.0,
+                xanchor="center",
+                yanchor="top",
+                orientation="h",
+            ),
+            dragmode="pan",
+        )
         return fig
