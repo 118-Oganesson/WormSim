@@ -590,6 +590,11 @@ class Worm:
         start_point = [0, 0]
         peak_point = [self.x_peak, self.y_peak]
 
+        # 矢印を描画するためのベクトルを計算
+        arrow_length = 1
+        arrow_x = start_point[0] + arrow_length * np.cos(self.mu_0)
+        arrow_y = start_point[1] + arrow_length * np.sin(self.mu_0)
+
         # 表示範囲を計算
         x_min = min(start_point[0], peak_point[0])
         x_max = max(start_point[0], peak_point[0])
@@ -694,5 +699,24 @@ class Worm:
                 orientation="h",
             ),
             dragmode="pan",
+            annotations=[
+                go.layout.Annotation(
+                    dict(
+                        x=arrow_x,
+                        y=arrow_y,
+                        showarrow=True,
+                        xref="x",
+                        yref="y",
+                        arrowcolor="black",
+                        arrowsize=2,
+                        arrowwidth=2,
+                        ax=start_point[0],
+                        ay=start_point[1],
+                        axref="x",
+                        ayref="y",
+                        arrowhead=3,
+                    )
+                )
+            ],
         )
         return fig

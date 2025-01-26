@@ -1,4 +1,5 @@
 import streamlit as st
+import numpy as np
 import wormsim.worm as worm
 import toml
 import time
@@ -15,10 +16,9 @@ c_elegans.concentration_num = 100
 
 # StreamlitのUI設定
 st.title("C. elegans Simulator")
-st.header("Setting")
+st.header("Concentration Setting")
 col1, col2 = st.columns([3, 1])
 with col2:
-    st.subheader("Gradient Peak")
     c_elegans.x_peak = st.slider(
         "X",
         min_value=0.0,
@@ -45,6 +45,13 @@ with col2:
         min_value=0.0,
         max_value=5.0,
         value=const["lambda"],
+        step=0.1,
+    )
+    c_elegans.mu_0 = st.slider(
+        "mu_0",
+        min_value=0.0,
+        max_value=2 * np.pi,
+        value=const["mu_0"],
         step=0.1,
     )
 
