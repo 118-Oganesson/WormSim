@@ -4,7 +4,7 @@ import toml
 import time
 
 # 変数の定義
-config = toml.load("config.toml")
+config = toml.load("./config.toml")
 gene = config["gene"]
 const = config["const"]
 c_mode = config["c_mode"]
