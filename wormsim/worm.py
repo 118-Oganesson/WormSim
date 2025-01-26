@@ -7,7 +7,7 @@ import io
 
 
 class Worm:
-    def __init__(self, gene, const, c_mode, using_rust=True):
+    def __init__(self, gene, const, c_mode, concentration_map, using_rust=True):
         self.gene = gene
         self.c_mode = c_mode["c_mode"]
 
@@ -46,21 +46,11 @@ class Worm:
             self.T_ = params["T_"]
 
         # 濃度マップの設定
-        self.concentration_x_range = (-15, 15)
-        self.concentration_y_range = (-15, 15)
-        self.concentration_num = 100
-        self.color_scheme = [
-            "#ffffff",
-            "#f7fbff",
-            "#eff7ff",
-            "#dfefff",
-            "#cfe7ff",
-            "#bfdfff",
-            "#afd7ff",
-            "#9fcfff",
-            "#8fc7ff",
-        ]
-        self.opacity = 1
+        self.concentration_x_range = concentration_map["concentration_x_range"]
+        self.concentration_y_range = concentration_map["concentration_y_range"]
+        self.concentration_num = concentration_map["concentration_num"]
+        self.color_scheme = concentration_map["color_scheme"]
+        self.opacity = concentration_map["opacity"]
 
     def _generate_weights(self):
         def gene_range(gene, min, max, num_values=1):

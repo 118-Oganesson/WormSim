@@ -9,9 +9,10 @@ config = toml.load("./config.toml")
 gene = config["gene"]
 const = config["const"]
 c_mode = config["c_mode"]
+concentration_map = config["concentration_map"]
 
 # 線虫
-c_elegans = worm.Worm(gene, const, c_mode)
+c_elegans = worm.Worm(gene, const, c_mode, concentration_map)
 c_elegans.concentration_num = 100
 
 # StreamlitのUI設定

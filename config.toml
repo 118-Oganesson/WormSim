@@ -40,3 +40,20 @@ time_constant = 0.1
 
 [c_mode]
 c_mode = 1
+
+[concentration_map]
+concentration_x_range = [-15, 15]
+concentration_y_range = [-15, 15]
+concentration_num = 100
+color_scheme = [
+    "#ffffff",
+    "#f7fbff",
+    "#eff7ff",
+    "#dfefff",
+    "#cfe7ff",
+    "#bfdfff",
+    "#afd7ff",
+    "#9fcfff",
+    "#8fc7ff",
+]
+opacity = 1
