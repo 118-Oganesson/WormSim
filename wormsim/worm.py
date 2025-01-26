@@ -252,7 +252,7 @@ class Worm:
         }.get(self.c_mode, self._c_gauss)
         return concentration(x, y)
 
-    def _save_concentration_map_as_base64(self, size=(100, 100)):
+    def _save_concentration_map_as_base64(self):
         """濃度マップを画像として保存し、Base64形式で返す"""
         x = np.linspace(
             self.concentration_x_range[0],
@@ -277,8 +277,8 @@ class Worm:
             )
         )
         fig.update_layout(
-            width=size[0],
-            height=size[1],
+            width=self.concentration_num,
+            height=self.concentration_num,
             margin=dict(l=0, r=0, t=0, b=0),
             xaxis=dict(visible=False, showticklabels=False, zeroline=False),
             yaxis=dict(visible=False, showticklabels=False, zeroline=False),
@@ -304,7 +304,6 @@ class Worm:
         self,
         trajectory,
         downsampling_factor=100,
-        concentration_size=(100, 100),
         figure_size=(800, 500),
         padding=1,
         animation_duration=10,
@@ -331,9 +330,7 @@ class Worm:
         time_downsampled = time[::downsampling_factor]
 
         # 濃度マップ画像のBase64変換
-        base64_concentration_image = self._save_concentration_map_as_base64(
-            size=concentration_size,
-        )
+        base64_concentration_image = self._save_concentration_map_as_base64()
         base64_concentration_source = (
             f"data:image/png;base64,{base64_concentration_image}"
         )
