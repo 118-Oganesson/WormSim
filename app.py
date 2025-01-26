@@ -11,6 +11,7 @@ c_mode = config["c_mode"]
 
 # 線虫
 c_elegans = worm.Worm(gene, const, c_mode)
+c_elegans.concentration_num = 100
 
 # StreamlitのUI設定
 st.title("C. elegans Simulator")
