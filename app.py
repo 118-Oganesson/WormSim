@@ -31,13 +31,14 @@ elif select_gene == "低塩濃度育成":
     c_elegans.gene = config["gene"][1]
 
 select_c_mode = st.selectbox(
-    "使用する塩濃度関数を選択してください。", ["関数１", "関数２"]
+    "使用する塩濃度関数を選択してください。",
+    ["ガウス分布（ピーク１つ）", "ガウス分布（ピーク２つ）"],
 )
-if select_c_mode == "関数１":
+if select_c_mode == "ガウス分布（ピーク１つ）":
     c_elegans.c_mode = 1
     c_elegans.color_scheme = config["concentration_map"]["color_scheme_blue"]
     st.write("$C(x,y)=C_0e^{-\\frac{(x-x_{peak})^2+(y-y_{peak})^2}{2\\lambda^2}}$")
-elif select_c_mode == "関数２":
+elif select_c_mode == "ガウス分布（ピーク２つ）":
     c_elegans.c_mode = 2
     c_elegans.color_scheme = config["concentration_map"]["color_scheme_red_blue"]
     st.write(
@@ -81,7 +82,7 @@ with st.expander("その他の設定"):
     col1, col2 = st.columns([1, 1])
     with col1:
         c_elegans.mu_0 = st.slider(
-            "direction of movement /rad",
+            "進行方向 /rad",
             min_value=0.0,
             max_value=2 * np.pi,
             value=const["mu_0"],
@@ -89,7 +90,7 @@ with st.expander("その他の設定"):
         )
     with col2:
         c_elegans.time = st.slider(
-            "simulation time /s",
+            "シミュレーション時間 /s",
             min_value=0.0,
             max_value=500.0,
             value=const["simulation_time"],

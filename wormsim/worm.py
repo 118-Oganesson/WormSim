@@ -391,14 +391,14 @@ class Worm:
 
         if self.c_mode == 2:
             fig.add_trace(
-            go.Scatter(
-                x=[-peak_point[0]],
-                y=[-peak_point[1]],
-                mode="markers",
-                marker=dict(size=10, color="black", symbol="x"),
-                name="Gradient Peak",
+                go.Scatter(
+                    x=[-peak_point[0]],
+                    y=[-peak_point[1]],
+                    mode="markers",
+                    marker=dict(size=10, color="black", symbol="x"),
+                    name="Gradient Peak",
+                )
             )
-        )
 
         # 1cmラインとテキスト
         fig.add_trace(
@@ -630,6 +630,8 @@ class Worm:
                     titleside="right",
                     tickformat=".2f",
                     len=1.0,
+                    tickfont=dict(color="black"),  
+                    titlefont=dict(color="black"),  
                 ),
                 showscale=True,
             )
@@ -657,14 +659,14 @@ class Worm:
 
         if self.c_mode == 2:
             fig.add_trace(
-            go.Scatter(
-                x=[-peak_point[0]],
-                y=[-peak_point[1]],
-                mode="markers",
-                marker=dict(size=10, color="black", symbol="x"),
-                name="Gradient Peak",
+                go.Scatter(
+                    x=[-peak_point[0]],
+                    y=[-peak_point[1]],
+                    mode="markers",
+                    marker=dict(size=10, color="black", symbol="x"),
+                    name="Gradient Peak",
+                )
             )
-        )
 
         # 1cmラインとテキスト
         fig.add_trace(
