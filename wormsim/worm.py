@@ -467,9 +467,9 @@ class Worm:
         # アニメーション設定
         fig.frames = frames
         fig.update_layout(
-            title="C. elegans and the Salt Gradient: Klinotaxis in Action",
-            title_x=0.5,
-            title_xanchor="center",
+            # title="Salt Concentration Memory-Dependent Chemotaxis",
+            # title_x=0.5,
+            # title_xanchor="center",
             template="plotly_white",
             xaxis=dict(
                 showgrid=False,
@@ -527,9 +527,9 @@ class Worm:
                     "pad": {"r": 10, "t": 87},
                     "showactive": False,
                     "type": "buttons",
-                    "x": 0.1,
-                    "xanchor": "right",
-                    "y": 0,
+                    "x": 0.0,
+                    "xanchor": "left",
+                    "y": 0.11,
                     "yanchor": "top",
                     "font": {"color": "black"},
                 }
@@ -537,9 +537,10 @@ class Worm:
             sliders=[
                 {
                     "yanchor": "top",
-                    "xanchor": "left",
-                    "x": 0.1,
-                    "y": -0.1,
+                    "xanchor": "right",
+                    "x": 1.0,
+                    "y": 0.0,
+                    "len": 0.8,
                     "steps": [
                         {
                             "args": [
