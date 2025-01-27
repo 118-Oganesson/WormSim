@@ -13,7 +13,6 @@ concentration_map = config["concentration_map"]
 
 c_elegans = worm.Worm(gene, const, c_mode, concentration_map)
 
-
 # StreamlitのUI設定
 st.header("*C. elegans* Simulator")
 st.write(
@@ -31,10 +30,21 @@ if select_gene == "高塩濃度育成":
 elif select_gene == "低塩濃度育成":
     c_elegans.gene = config["gene"][1]
 
-st.write(
-    "塩濃度関数：$C(x,y)=C_0e^{-\\frac{(x-x_{peak})^2+(y-y_{peak})^2}{2\\lambda^2}}$"
+select_c_mode = st.selectbox(
+    "使用する塩濃度関数を選択してください。", ["関数１", "関数２"]
 )
-if st.checkbox("塩濃度のパラメータ"):
+if select_c_mode == "関数１":
+    c_elegans.c_mode = 1
+    c_elegans.color_scheme = config["concentration_map"]["color_scheme_blue"]
+    st.write("$C(x,y)=C_0e^{-\\frac{(x-x_{peak})^2+(y-y_{peak})^2}{2\\lambda^2}}$")
+elif select_c_mode == "関数２":
+    c_elegans.c_mode = 2
+    c_elegans.color_scheme = config["concentration_map"]["color_scheme_red_blue"]
+    st.write(
+        "$C(x,y)=C_0[e^{-\\frac{(x-x_{peak})^2+(y-y_{peak})^2}{2\\lambda^2}}-e^{-\\frac{(x+x_{peak})^2+(y+y_{peak})^2}{2\\lambda^2}}]$"
+    )
+
+with st.expander("塩濃度の設定"):
     col1, col2 = st.columns([1, 1])
     with col1:
         c_elegans.x_peak = st.slider(
@@ -67,7 +77,7 @@ if st.checkbox("塩濃度のパラメータ"):
             step=0.1,
         )
 
-if st.checkbox("その他のパラメータ"):
+with st.expander("その他の設定"):
     col1, col2 = st.columns([1, 1])
     with col1:
         c_elegans.mu_0 = st.slider(
@@ -86,6 +96,7 @@ if st.checkbox("その他のパラメータ"):
             step=1.0,
         )
 
+concentration_plot = st.empty()
 fig = c_elegans.create_concentration_map()
 st.plotly_chart(fig)
 

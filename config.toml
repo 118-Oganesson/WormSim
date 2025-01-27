@@ -70,7 +70,26 @@ c_mode = 1
 concentration_x_range = [-15, 15]
 concentration_y_range = [-15, 15]
 concentration_num = 100
-color_scheme = [
+color_scheme_blue = [
+    "#ffffff",
+    "#f7fbff",
+    "#eff7ff",
+    "#dfefff",
+    "#cfe7ff",
+    "#bfdfff",
+    "#afd7ff",
+    "#9fcfff",
+    "#8fc7ff",
+]
+color_scheme_red_blue = [
+    '#ff0000',
+    '#ff3333',
+    '#ff6666',
+    '#ff9999',
+    '#ffcccc',
+    '#ffd9d9',
+    '#ffe6e6',
+    '#fff2f2',
     "#ffffff",
     "#f7fbff",
     "#eff7ff",

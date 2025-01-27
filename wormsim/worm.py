@@ -49,7 +49,7 @@ class Worm:
         self.concentration_x_range = concentration_map["concentration_x_range"]
         self.concentration_y_range = concentration_map["concentration_y_range"]
         self.concentration_num = concentration_map["concentration_num"]
-        self.color_scheme = concentration_map["color_scheme"]
+        self.color_scheme = concentration_map["color_scheme_blue"]
         self.opacity = concentration_map["opacity"]
 
     def _generate_weights(self):
@@ -389,6 +389,17 @@ class Worm:
             )
         )
 
+        if self.c_mode == 2:
+            fig.add_trace(
+            go.Scatter(
+                x=[-peak_point[0]],
+                y=[-peak_point[1]],
+                mode="markers",
+                marker=dict(size=10, color="black", symbol="x"),
+                name="Gradient Peak",
+            )
+        )
+
         # 1cmラインとテキスト
         fig.add_trace(
             go.Scatter(
@@ -580,11 +591,19 @@ class Worm:
         arrow_y = start_point[1] + arrow_length * np.sin(self.mu_0)
 
         # 表示範囲を計算
-        x_min = min(start_point[0], peak_point[0])
-        x_max = max(start_point[0], peak_point[0])
+        if self.c_mode == 1:
+            x_min = min(start_point[0], peak_point[0])
+            x_max = max(start_point[0], peak_point[0])
 
-        y_min = min(start_point[1], peak_point[1])
-        y_max = max(start_point[1], peak_point[1])
+            y_min = min(start_point[1], peak_point[1])
+            y_max = max(start_point[1], peak_point[1])
+
+        elif self.c_mode == 2:
+            x_min = min(-peak_point[0], peak_point[0])
+            x_max = max(-peak_point[0], peak_point[0])
+
+            y_min = min(-peak_point[1], peak_point[1])
+            y_max = max(-peak_point[1], peak_point[1])
 
         x = np.linspace(
             self.concentration_x_range[0],
@@ -630,6 +649,17 @@ class Worm:
             go.Scatter(
                 x=[peak_point[0]],
                 y=[peak_point[1]],
+                mode="markers",
+                marker=dict(size=10, color="black", symbol="x"),
+                name="Gradient Peak",
+            )
+        )
+
+        if self.c_mode == 2:
+            fig.add_trace(
+            go.Scatter(
+                x=[-peak_point[0]],
+                y=[-peak_point[1]],
                 mode="markers",
                 marker=dict(size=10, color="black", symbol="x"),
                 name="Gradient Peak",
