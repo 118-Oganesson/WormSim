@@ -335,7 +335,7 @@ class Worm:
         )
 
         # 線虫画像の処理（回転、反転）
-        base_image = Image.open("./c_elegans.png")
+        base_image = Image.open("./image/c_elegans.png")
         worm_rotated_image = base_image.rotate(-60, expand=True)
         worm_flipped_image = worm_rotated_image.transpose(Image.FLIP_LEFT_RIGHT)
         base64_worm_rotated_image = self._image_to_base64(worm_rotated_image)
@@ -630,8 +630,8 @@ class Worm:
                     titleside="right",
                     tickformat=".2f",
                     len=1.0,
-                    tickfont=dict(color="black"),  
-                    titlefont=dict(color="black"),  
+                    tickfont=dict(color="black"),
+                    titlefont=dict(color="black"),
                 ),
                 showscale=True,
             )
