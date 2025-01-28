@@ -51,7 +51,7 @@ with col1:
     select_c_mode = st.radio(
         "塩濃度関数を選択してください。",
         ["ガウス分布１", "ガウス分布２"],
-        help="論文中では、ガウス分布１の関数のみ使用されています。"
+        help="論文中では、ガウス分布１の関数のみ使用されています。",
     )
 with col2:
     st.write("塩濃度関数：")
@@ -66,6 +66,7 @@ with col2:
             "$C(x,y)=C_0[e^{-\\frac{(x-x_{peak})^2+(y-y_{peak})^2}{2\\lambda^2}}-e^{-\\frac{(x+x_{peak})^2+(y+y_{peak})^2}{2\\lambda^2}}]$"
         )
 
+plot_concentration_map = st.empty()
 
 with st.expander("塩濃度の設定"):
     col1, col2 = st.columns(2)
@@ -76,7 +77,7 @@ with st.expander("塩濃度の設定"):
             max_value=10.0,
             value=const["x_peak"],
             step=0.1,
-            help="Gradient Peakのx座標"
+            help="Gradient Peakのx座標",
         )
         c_elegans.y_peak = st.slider(
             "$y_{peak}$ /cm",
@@ -84,7 +85,7 @@ with st.expander("塩濃度の設定"):
             max_value=5.0,
             value=const["y_peak"],
             step=0.1,
-            help="Gradient Peakのy座標"
+            help="Gradient Peakのy座標",
         )
     with col2:
         c_elegans.c_0 = st.slider(
@@ -93,7 +94,7 @@ with st.expander("塩濃度の設定"):
             max_value=5.0,
             value=const["c_0"],
             step=0.1,
-            help="塩濃度の最大値を決めるパラメータ"
+            help="塩濃度の最大値を決めるパラメータ",
         )
         c_elegans.lambda_ = st.slider(
             "$\\lambda$ /cm",
@@ -101,7 +102,7 @@ with st.expander("塩濃度の設定"):
             max_value=5.0,
             value=const["lambda"],
             step=0.1,
-            help="塩濃度の広がり方を決めるパラメータ"
+            help="塩濃度の広がり方を決めるパラメータ",
         )
 
 with st.expander("その他の設定"):
@@ -113,7 +114,7 @@ with st.expander("その他の設定"):
             max_value=2 * np.pi,
             value=const["mu_0"],
             step=0.1,
-            help="線虫の初期の進行方向"
+            help="線虫の初期の進行方向",
         )
     with col2:
         c_elegans.time = st.slider(
@@ -122,13 +123,13 @@ with st.expander("その他の設定"):
             max_value=500.0,
             value=const["simulation_time"],
             step=1.0,
-            help="シミュレーションの時間（実行時間ではない）"
+            help="シミュレーションの時間（実行時間ではない）",
         )
     select_animation = st.radio(
         "アニメーションの描画精度",
         ["低レベル", "中レベル", "高レベル"],
         index=1,
-        help="レベルが低いほどフレーム数が減少する（使用しているシミュレーション結果は同じ）"
+        help="レベルが低いほどフレーム数が減少する（使用しているシミュレーション結果は同じ）",
     )
 
 if select_animation == "低レベル":
@@ -142,7 +143,7 @@ elif select_animation == "高レベル":
     animation_duration: int = 10
 
 fig = c_elegans.create_concentration_map()
-st.plotly_chart(fig)
+plot_concentration_map.plotly_chart(fig)
 
 
 # ボタンを配置
