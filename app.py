@@ -5,6 +5,26 @@ import toml
 import time
 from PIL import Image
 
+@st.dialog("シミュレーション結果",width="large")
+def simulation():
+    start_time = time.time()
+    with st.spinner("実行中..."):
+        trajectory = c_elegans.klinotaxis_rs()
+        fig = c_elegans.create_klintaxis_animation(
+            trajectory=trajectory,
+            downsampling_factor=downsampling_factor,
+            animation_duration=animation_duration,
+        )
+        st.success("画面左下にある&#9654;からアニメーションを再生できます。", icon="🔽")
+        st.plotly_chart(fig)
+    end_time = time.time()
+
+    # 経過時間を表示
+    total_time = end_time - start_time
+    st.toast(
+        f"シミュレーションが終わりました（{total_time:.2f} s）。画面を下にスクロールしてください。"
+    )
+
 # デフォルトの変数の読み込み
 config = toml.load("./config.toml")
 gene = config["gene"][0]
@@ -34,9 +54,12 @@ st.info(
     icon="📖",
 )
 
+st.write(":red-background[シミュレーション環境]：")
 plot = st.empty()
 
-with st.container(height=400):
+tab1, tab2, tab3 = st.tabs(["線虫の個体", "塩濃度関数", "その他の設定"])
+
+with tab1:
     col1, col2 = st.columns([3, 5])
     with col1:
         select_gene = st.radio(
@@ -60,6 +83,7 @@ with st.container(height=400):
                 use_container_width=True,
             )
 
+with tab2:
     col1, col2 = st.columns([3, 5])
     with col1:
         select_c_mode = st.radio(
@@ -84,44 +108,43 @@ with st.container(height=400):
                 "$C(x,y)=C_0[e^{-\\frac{(x-x_{peak})^2+(y-y_{peak})^2}{2\\lambda^2}}-e^{-\\frac{(x+x_{peak})^2+(y+y_{peak})^2}{2\\lambda^2}}]$"
             )
 
-    with st.expander("塩濃度の設定", icon="⚙️"):
-        col1, col2 = st.columns(2)
-        with col1:
-            c_elegans.x_peak = st.slider(
-                "$x_{peak}$ /cm",
-                min_value=0.0,
-                max_value=10.0,
-                value=const["x_peak"],
-                step=0.1,
-                help="Gradient Peakのx座標",
-            )
-            c_elegans.y_peak = st.slider(
-                "$y_{peak}$ /cm",
-                min_value=-5.0,
-                max_value=5.0,
-                value=const["y_peak"],
-                step=0.1,
-                help="Gradient Peakのy座標",
-            )
-        with col2:
-            c_elegans.c_0 = st.slider(
-                "$C_0$ /mM",
-                min_value=0.0,
-                max_value=5.0,
-                value=const["c_0"],
-                step=0.1,
-                help="塩濃度の最大値を決めるパラメータ",
-            )
-            c_elegans.lambda_ = st.slider(
-                "$\\lambda$ /cm",
-                min_value=0.0,
-                max_value=5.0,
-                value=const["lambda"],
-                step=0.1,
-                help="塩濃度の広がり方を決めるパラメータ",
-            )
+    col1, col2 = st.columns(2)
+    with col1:
+        c_elegans.x_peak = st.slider(
+            "$x_{peak}$ /cm",
+            min_value=0.0,
+            max_value=10.0,
+            value=const["x_peak"],
+            step=0.1,
+            help="Gradient Peakのx座標",
+        )
+        c_elegans.y_peak = st.slider(
+            "$y_{peak}$ /cm",
+            min_value=-5.0,
+            max_value=5.0,
+            value=const["y_peak"],
+            step=0.1,
+            help="Gradient Peakのy座標",
+        )
+    with col2:
+        c_elegans.c_0 = st.slider(
+            "$C_0$ /mM",
+            min_value=0.0,
+            max_value=5.0,
+            value=const["c_0"],
+            step=0.1,
+            help="塩濃度の最大値を決めるパラメータ",
+        )
+        c_elegans.lambda_ = st.slider(
+            "$\\lambda$ /cm",
+            min_value=0.0,
+            max_value=5.0,
+            value=const["lambda"],
+            step=0.1,
+            help="塩濃度の広がり方を決めるパラメータ",
+        )
 
-    with st.expander("その他の設定", icon="⚙️"):
+with tab3:
         col1, col2 = st.columns(2)
         with col1:
             c_elegans.mu_0 = st.slider(
@@ -166,20 +189,5 @@ plot.plotly_chart(fig)
 if st.button(
     "シミュレーションを実行", type="primary", use_container_width=True, icon="💻"
 ):
-    start_time = time.time()
-    with st.spinner("実行中..."):
-        trajectory = c_elegans.klinotaxis_rs()
-        fig = c_elegans.create_klintaxis_animation(
-            trajectory=trajectory,
-            downsampling_factor=downsampling_factor,
-            animation_duration=animation_duration,
-        )
-        st.success("画面左下にある&#9654;からアニメーションを再生できます。", icon="🔽")
-        st.plotly_chart(fig)
-    end_time = time.time()
+    simulation()
 
-    # 経過時間を表示
-    total_time = end_time - start_time
-    st.toast(
-        f"シミュレーションが終わりました（{total_time:.2f} s）。画面を下にスクロールしてください。"
-    )
