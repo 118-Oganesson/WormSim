@@ -17,10 +17,21 @@ c_elegans = worm.Worm(gene, const, c_mode, concentration_map)
 # StreamlitのUI設定
 st.header("*C. elegans* Simulator")
 st.write(
-    "この線虫シミュレーターは、*Caenorhabditis elegans*（*C. elegans*）が示す塩濃度記憶に依存した塩走性を再現するために作成されました。モデルは以下の論文に基づき構築されています。"
+    """
+この線虫シミュレーターは、*Caenorhabditis elegans*（*C. elegans*）が示す塩濃度記憶に依存した塩走性を再現するために作成されました。モデルは以下の論文に基づき構築されています。
+
+Hironaka, M., & Sumi, T. (2024). *A neural network model that generates salt concentration memory-dependent chemotaxis in Caenorhabditis elegans*. [DOI: 10.1101/2024.11.04.621960](https://doi.org/10.1101/2024.11.04.621960)
+"""
 )
-st.write(
-    "Hironaka, M., & Sumi, T. (2024). A neural network model that generates salt concentration memory-dependent chemotaxis in Caenorhabditis elegans. [DOI: 10.1101/2024.11.04.621960](https://doi.org/10.1101/2024.11.04.621960)"
+
+st.info(
+    """
+使用方法
+1. 線虫の個体や塩濃度関数を選択します。
+2. 必要に応じて塩濃度などのパラメータを調整します。  
+3. [シミュレーションを実行]を押すことで、画面下部にアニメーションが表示されます。
+""",
+    icon="📖",
 )
 
 col1, col2 = st.columns([3, 5])
@@ -66,13 +77,9 @@ with col2:
             "$C(x,y)=C_0[e^{-\\frac{(x-x_{peak})^2+(y-y_{peak})^2}{2\\lambda^2}}-e^{-\\frac{(x+x_{peak})^2+(y+y_{peak})^2}{2\\lambda^2}}]$"
         )
 
-tab1, tab2 = st.tabs(["濃度マップ", "シミュレーション結果"])
-with tab1:
-    plot_map = st.empty()
-with tab2:
-    plot_result = st.empty()
+plot = st.empty()
 
-with st.expander("塩濃度の設定"):
+with st.expander("塩濃度の設定", icon="⚙️"):
     col1, col2 = st.columns(2)
     with col1:
         c_elegans.x_peak = st.slider(
@@ -109,7 +116,7 @@ with st.expander("塩濃度の設定"):
             help="塩濃度の広がり方を決めるパラメータ",
         )
 
-with st.expander("その他の設定"):
+with st.expander("その他の設定", icon="⚙️"):
     col1, col2 = st.columns(2)
     with col1:
         c_elegans.mu_0 = st.slider(
@@ -147,11 +154,13 @@ elif select_animation == "高レベル":
     animation_duration: int = 10
 
 fig = c_elegans.create_concentration_map()
-plot_map.plotly_chart(fig)
+plot.plotly_chart(fig)
 
 
 # ボタンを配置
-if st.button("シミュレーションを実行", type="primary", use_container_width=True):
+if st.button(
+    "シミュレーションを実行", type="primary", use_container_width=True, icon="💻"
+):
     start_time = time.time()
     with st.spinner("実行中..."):
         trajectory = c_elegans.klinotaxis_rs()
@@ -160,9 +169,12 @@ if st.button("シミュレーションを実行", type="primary", use_container_
             downsampling_factor=downsampling_factor,
             animation_duration=animation_duration,
         )
-        plot_result.plotly_chart(fig)
+        st.success("画面左下にある&#9654;からアニメーションを再生できます。", icon="🔽")
+        st.plotly_chart(fig)
     end_time = time.time()
 
     # 経過時間を表示
     total_time = end_time - start_time
-    st.toast(f"シミュレーションが終わりました。 {total_time:.2f} s")
+    st.toast(
+        f"シミュレーションが終わりました（{total_time:.2f} s）。画面を下にスクロールしてください。"
+    )
