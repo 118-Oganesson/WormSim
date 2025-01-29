@@ -478,9 +478,6 @@ class Worm:
         # アニメーション設定
         fig.frames = frames
         fig.update_layout(
-            # title="Salt Concentration Memory-Dependent Chemotaxis",
-            # title_x=0.5,
-            # title_xanchor="center",
             template="plotly_white",
             xaxis=dict(
                 showgrid=False,
@@ -498,9 +495,9 @@ class Worm:
             xaxis_scaleanchor="y",
             legend=dict(
                 x=0.5,
-                y=0.0,
+                y=1.0,
                 xanchor="center",
-                yanchor="top",
+                yanchor="bottom",
                 orientation="h",
             ),
             dragmode="pan",
@@ -551,7 +548,7 @@ class Worm:
                     "xanchor": "right",
                     "x": 1.0,
                     "y": 0.0,
-                    "len": 0.8,
+                    "len": 0.75,
                     "steps": [
                         {
                             "args": [
@@ -627,11 +624,13 @@ class Worm:
                 opacity=self.opacity,
                 colorbar=dict(
                     title="Concentration (mM)",
-                    titleside="right",
+                    titleside="bottom",
                     tickformat=".2f",
-                    len=1.0,
+                    len=0.75,
                     tickfont=dict(color="black"),
                     titlefont=dict(color="black"),
+                    orientation="h",
+                    y=-0.4
                 ),
                 showscale=True,
             )
@@ -707,9 +706,9 @@ class Worm:
             xaxis_scaleanchor="y",
             legend=dict(
                 x=0.5,
-                y=0.0,
+                y=1.0,
                 xanchor="center",
-                yanchor="top",
+                yanchor="bottom",
                 orientation="h",
             ),
             dragmode="pan",

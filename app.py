@@ -66,7 +66,11 @@ with col2:
             "$C(x,y)=C_0[e^{-\\frac{(x-x_{peak})^2+(y-y_{peak})^2}{2\\lambda^2}}-e^{-\\frac{(x+x_{peak})^2+(y+y_{peak})^2}{2\\lambda^2}}]$"
         )
 
-plot_concentration_map = st.empty()
+tab1, tab2 = st.tabs(["濃度マップ", "シミュレーション結果"])
+with tab1:
+    plot_map = st.empty()
+with tab2:
+    plot_result = st.empty()
 
 with st.expander("塩濃度の設定"):
     col1, col2 = st.columns(2)
@@ -143,29 +147,22 @@ elif select_animation == "高レベル":
     animation_duration: int = 10
 
 fig = c_elegans.create_concentration_map()
-plot_concentration_map.plotly_chart(fig)
+plot_map.plotly_chart(fig)
 
 
 # ボタンを配置
-if st.button("Run Simulation"):
+if st.button("シミュレーションを実行", type="primary", use_container_width=True):
     start_time = time.time()
-    with st.spinner("Calculating trajectory..."):
+    with st.spinner("実行中..."):
         trajectory = c_elegans.klinotaxis_rs()
-    mid_time = time.time()
-    with st.spinner("Creating animation..."):
         fig = c_elegans.create_klintaxis_animation(
             trajectory=trajectory,
             downsampling_factor=downsampling_factor,
             animation_duration=animation_duration,
         )
-        st.plotly_chart(fig)
+        plot_result.plotly_chart(fig)
     end_time = time.time()
 
     # 経過時間を表示
-    calculation_time = mid_time - start_time
-    animation_time = end_time - mid_time
     total_time = end_time - start_time
-
-    st.write(f"Calculation time: {calculation_time:.2f} seconds")
-    st.write(f"Animation creation time: {animation_time:.2f} seconds")
-    st.write(f"Total time: {total_time:.2f} seconds")
+    st.toast(f"シミュレーションが終わりました。 {total_time:.2f} s")
