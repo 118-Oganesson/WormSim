@@ -9,7 +9,7 @@ Hironaka, M., & Sumi, T. (2024). *A neural network model that generates salt con
 このシミュレーターは、Webアプリケーションとして提供されており、視覚的にわかりやすい形で入力パラメータを設定し、線虫の動きをアニメーションとして観察することができます。
 
 ## 使用方法
-1. シミュレーターを開き、下のタブから、線虫の個体や塩濃度関数を選択します。
+1. [シミュレーター](https://wormsim.streamlit.app/)を開き、下のタブから、線虫の個体や塩濃度関数を選択します。
 2. 必要に応じて塩濃度などのパラメータを調整します。  
 3. **シミュレーションを実行**を押すことで、画面上にアニメーションが表示されます。
 
@@ -32,7 +32,7 @@ Hironaka, M., & Sumi, T. (2024). *A neural network model that generates salt con
 This simulator is available as a web application, allowing users to intuitively configure input parameters and observe *C. elegans* movements through animations.  
 
 ## **How to Use**  
-1. Open the simulator and select *C. elegans* individuals and salt concentration functions from the tabs below.  
+1. Open the [simulator](https://wormsim.streamlit.app/) and select *C. elegans* individuals and salt concentration functions from the tabs below.  
 2. Adjust parameters such as salt concentration as needed.  
 3. Click **Run Simulation** to display the animation on the screen.  
 
