@@ -29,13 +29,13 @@ st.write(lang_dict[lang_code]["description"])
 st.write(lang_dict[lang_code]["paper_reference"])
 st.info(lang_dict[lang_code]["usage_info"], icon="📖")
 
-st.write(lang_dict[lang_code]['simulation_environment'])
+st.write(lang_dict[lang_code]["simulation_environment"])
 plot = st.empty()
 
 tab1, tab2, tab3 = st.tabs(lang_dict[lang_code]["tab_names"])
 
 with tab1:
-    col1, col2 = st.columns([3, 5])
+    col1, col2 = st.columns([4, 5])
     with col1:
         select_gene = st.radio(
             lang_dict[lang_code]["select_worm_label"],
@@ -50,6 +50,12 @@ with tab1:
         elif select_gene == lang_dict[lang_code]["select_worm_options"][1]:
             c_elegans.gene = config["gene"][1]
             image = Image.open("./image/connectome_low.png")
+        elif select_gene == lang_dict[lang_code]["select_worm_options"][2]:
+            c_elegans.gene = config["gene"][2]
+            image = Image.open("./image/connectome_high_starvation.png")
+        elif select_gene == lang_dict[lang_code]["select_worm_options"][3]:
+            c_elegans.gene = config["gene"][3]
+            image = Image.open("./image/connectome_low_starvation.png")
 
         with st.expander(lang_dict[lang_code]["expander_image_label"]):
             st.image(

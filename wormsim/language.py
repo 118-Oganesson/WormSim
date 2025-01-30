@@ -13,6 +13,8 @@ language = {
         "select_worm_options": [
             "高塩濃度環境で育成した個体",
             "低塩濃度環境で育成した個体",
+            "高塩濃度環境で育成した個体(飢餓)",
+            "低塩濃度環境で育成した個体(飢餓)",
         ],
         "select_worm_help": "線虫は培養中に記憶した塩濃度に基づき、現在の環境における嗜好行動を示します。",
         "neural_circuit": "神経回路：",
@@ -65,6 +67,8 @@ language = {
         "select_worm_options": [
             "Individual raised in high-salt environment",
             "Individual raised in low-salt environment",
+            "Individual raised in high-salt environment (starvation)",
+            "Individual raised in low-salt environment (starvation)",
         ],
         "select_worm_help": "*C. elegans* exhibits preference behavior based on the salt concentration it memorized during cultivation.",
         "neural_circuit": "Neural Circuit:",
