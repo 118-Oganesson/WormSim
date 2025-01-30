@@ -1,29 +1,10 @@
 import streamlit as st
 import numpy as np
 import wormsim.worm as worm
+import wormsim.language as lang
 import toml
-import time
 from PIL import Image
 
-@st.dialog("シミュレーション結果",width="large")
-def simulation():
-    start_time = time.time()
-    with st.spinner("実行中..."):
-        trajectory = c_elegans.klinotaxis_rs()
-        fig = c_elegans.create_klintaxis_animation(
-            trajectory=trajectory,
-            downsampling_factor=downsampling_factor,
-            animation_duration=animation_duration,
-        )
-        st.success("画面左下にある&#9654;からアニメーションを再生できます。", icon="🔽")
-        st.plotly_chart(fig)
-    end_time = time.time()
-
-    # 経過時間を表示
-    total_time = end_time - start_time
-    st.toast(
-        f"シミュレーションが終わりました（{total_time:.2f} s）。画面を下にスクロールしてください。"
-    )
 
 # デフォルトの変数の読み込み
 config = toml.load("./config.toml")
@@ -31,55 +12,49 @@ gene = config["gene"][0]
 const = config["const"]
 c_mode = config["c_mode"]
 concentration_map = config["concentration_map"]
-
 c_elegans = worm.Worm(gene, const, c_mode, concentration_map)
 
+lang_dict = lang.language
+
 # StreamlitのUI設定
-st.header("*C. elegans* Simulator")
-st.write(
-    """
-この線虫シミュレーターは、*Caenorhabditis elegans*（*C. elegans*）が示す塩濃度記憶に依存した塩走性を再現するために作成されました。モデルは以下の論文に基づき構築されています。
+col1, col2 = st.columns([3, 1])
+with col2:
+    selected_lang = st.selectbox("🌍 言語 / Language", ["日本語 (JA)", "English (EN)"])
+    # 言語コードを判定
+    lang_code = "ja" if "日本語" in selected_lang else "en"
+with col1:
+    st.header(lang_dict[lang_code]["title"])
 
-Hironaka, M., & Sumi, T. (2024). *A neural network model that generates salt concentration memory-dependent chemotaxis in Caenorhabditis elegans*. [DOI: 10.1101/2024.11.04.621960](https://doi.org/10.1101/2024.11.04.621960)
-"""
-)
+st.write(lang_dict[lang_code]["description"])
+st.write(lang_dict[lang_code]["paper_reference"])
+st.info(lang_dict[lang_code]["usage_info"], icon="📖")
 
-st.info(
-    """
-使用方法
-1. 線虫の個体や塩濃度関数を選択します。
-2. 必要に応じて塩濃度などのパラメータを調整します。  
-3. [シミュレーションを実行]を押すことで、画面下部にアニメーションが表示されます。
-""",
-    icon="📖",
-)
-
-st.write(":red-background[シミュレーション環境]：")
+st.write(lang_dict[lang_code]['simulation_environment'])
 plot = st.empty()
 
-tab1, tab2, tab3 = st.tabs(["線虫の個体", "塩濃度関数", "その他の設定"])
+tab1, tab2, tab3 = st.tabs(lang_dict[lang_code]["tab_names"])
 
 with tab1:
     col1, col2 = st.columns([3, 5])
     with col1:
         select_gene = st.radio(
-            "線虫の個体を選択してください。",
-            ["高塩濃度育成", "低塩濃度育成"],
-            help="線虫は培養中に記憶した塩濃度に基づき、現在の環境における嗜好行動を示します。",
+            lang_dict[lang_code]["select_worm_label"],
+            lang_dict[lang_code]["select_worm_options"],
+            help=lang_dict[lang_code]["select_worm_help"],
         )
     with col2:
-        st.write("神経回路：")
-        if select_gene == "高塩濃度育成":
+        st.write(lang_dict[lang_code]["neural_circuit"])
+        if select_gene == lang_dict[lang_code]["select_worm_options"][0]:
             c_elegans.gene = config["gene"][0]
             image = Image.open("./image/connectome_high.png")
-        elif select_gene == "低塩濃度育成":
+        elif select_gene == lang_dict[lang_code]["select_worm_options"][1]:
             c_elegans.gene = config["gene"][1]
             image = Image.open("./image/connectome_low.png")
 
-        with st.expander("画像を表示"):
+        with st.expander(lang_dict[lang_code]["expander_image_label"]):
             st.image(
                 image,
-                caption="白い円は化学感覚ニューロン、灰色の円は介在ニューロン、黒い円は運動ニューロンを表しています。青い矢印と赤い平らな矢印は、それぞれ興奮性と抑制性のシナプス接続を示しています。緑の線は電気的ギャップ結合を示しています。また、接続の太さはそれぞれの結合の強度を示しています。",
+                caption=lang_dict[lang_code]["image_caption"],
                 use_container_width=True,
             )
 
@@ -87,107 +62,118 @@ with tab2:
     col1, col2 = st.columns([3, 5])
     with col1:
         select_c_mode = st.radio(
-            "塩濃度関数を選択してください。",
-            ["ガウス分布１", "ガウス分布２"],
-            help="論文中では、ガウス分布１の関数のみ使用されています。",
+            lang_dict[lang_code]["select_concentration_label"],
+            lang_dict[lang_code]["select_concentration_options"],
+            help=lang_dict[lang_code]["select_concentration_help"],
         )
     with col2:
-        st.write("塩濃度関数：")
-        if select_c_mode == "ガウス分布１":
+        st.write(lang_dict[lang_code]["concentration_function"])
+        if select_c_mode == lang_dict[lang_code]["select_concentration_options"][0]:
             c_elegans.c_mode = 1
             c_elegans.color_scheme = config["concentration_map"]["color_scheme_blue"]
-            st.write(
-                "$C(x,y)=C_0e^{-\\frac{(x-x_{peak})^2+(y-y_{peak})^2}{2\\lambda^2}}$"
-            )
-        elif select_c_mode == "ガウス分布２":
+            st.write(lang_dict[lang_code]["concentration_function_1"])
+        elif select_c_mode == lang_dict[lang_code]["select_concentration_options"][1]:
             c_elegans.c_mode = 2
             c_elegans.color_scheme = config["concentration_map"][
                 "color_scheme_red_blue"
             ]
-            st.write(
-                "$C(x,y)=C_0[e^{-\\frac{(x-x_{peak})^2+(y-y_{peak})^2}{2\\lambda^2}}-e^{-\\frac{(x+x_{peak})^2+(y+y_{peak})^2}{2\\lambda^2}}]$"
-            )
+            st.write(lang_dict[lang_code]["concentration_function_2"])
 
     col1, col2 = st.columns(2)
     with col1:
         c_elegans.x_peak = st.slider(
-            "$x_{peak}$ /cm",
+            lang_dict[lang_code]["slider_x_peak"],
             min_value=0.0,
             max_value=10.0,
             value=const["x_peak"],
             step=0.1,
-            help="Gradient Peakのx座標",
+            help=lang_dict[lang_code]["slider_x_peak_help"],
         )
         c_elegans.y_peak = st.slider(
-            "$y_{peak}$ /cm",
+            lang_dict[lang_code]["slider_y_peak"],
             min_value=-5.0,
             max_value=5.0,
             value=const["y_peak"],
             step=0.1,
-            help="Gradient Peakのy座標",
+            help=lang_dict[lang_code]["slider_y_peak_help"],
         )
     with col2:
         c_elegans.c_0 = st.slider(
-            "$C_0$ /mM",
+            lang_dict[lang_code]["slider_c_0"],
             min_value=0.0,
             max_value=5.0,
             value=const["c_0"],
             step=0.1,
-            help="塩濃度の最大値を決めるパラメータ",
+            help=lang_dict[lang_code]["slider_c_0_help"],
         )
         c_elegans.lambda_ = st.slider(
-            "$\\lambda$ /cm",
+            lang_dict[lang_code]["slider_lambda"],
             min_value=0.0,
             max_value=5.0,
             value=const["lambda"],
             step=0.1,
-            help="塩濃度の広がり方を決めるパラメータ",
+            help=lang_dict[lang_code]["slider_lambda_help"],
         )
 
 with tab3:
-        col1, col2 = st.columns(2)
-        with col1:
-            c_elegans.mu_0 = st.slider(
-                "進行方向 /rad",
-                min_value=0.0,
-                max_value=2 * np.pi,
-                value=const["mu_0"],
-                step=0.1,
-                help="線虫の初期の進行方向",
-            )
-        with col2:
-            c_elegans.time = st.slider(
-                "シミュレーション時間 /s",
-                min_value=0.0,
-                max_value=500.0,
-                value=const["simulation_time"],
-                step=1.0,
-                help="シミュレーションの時間（実行時間ではない）",
-            )
-        select_animation = st.radio(
-            "アニメーションの描画精度",
-            ["低レベル", "中レベル", "高レベル"],
-            index=1,
-            help="レベルが低いほどフレーム数が減少する（使用しているシミュレーション結果は同じ）",
+    col1, col2 = st.columns(2)
+    with col1:
+        c_elegans.mu_0 = st.slider(
+            lang_dict[lang_code]["slider_mu_0"],
+            min_value=0.0,
+            max_value=2 * np.pi,
+            value=const["mu_0"],
+            step=0.1,
+            help=lang_dict[lang_code]["slider_mu_0_help"],
         )
+    with col2:
+        c_elegans.time = st.slider(
+            lang_dict[lang_code]["slider_simulation_time"],
+            min_value=0.0,
+            max_value=1000.0,
+            value=const["simulation_time"],
+            step=1.0,
+            help=lang_dict[lang_code]["slider_simulation_time_help"],
+        )
+    select_animation = st.radio(
+        lang_dict[lang_code]["animation_quality_label"],
+        lang_dict[lang_code]["animation_quality_options"],
+        index=1,
+        help=lang_dict[lang_code]["animation_quality_help"],
+    )
 
-if select_animation == "低レベル":
+if select_animation == lang_dict[lang_code]["animation_quality_options"][0]:
     downsampling_factor: int = 300
     animation_duration: int = 80
-elif select_animation == "中レベル":
+elif select_animation == lang_dict[lang_code]["animation_quality_options"][1]:
     downsampling_factor: int = 200
     animation_duration: int = 50
-elif select_animation == "高レベル":
+elif select_animation == lang_dict[lang_code]["animation_quality_options"][2]:
     downsampling_factor: int = 100
     animation_duration: int = 10
 
 fig = c_elegans.create_concentration_map()
-plot.plotly_chart(fig)
+plot.plotly_chart(fig, config={"staticPlot": False})
+
+
+@st.dialog(lang_dict[lang_code]["dialog_title"], width="large")
+def simulation():
+    with st.spinner(lang_dict[lang_code]["spinner_message"]):
+        trajectory = c_elegans.klinotaxis_rs()
+        fig = c_elegans.create_klintaxis_animation(
+            trajectory=trajectory,
+            downsampling_factor=downsampling_factor,
+            animation_duration=animation_duration,
+        )
+        st.success(lang_dict[lang_code]["success_message"], icon="🔽")
+        st.plotly_chart(fig)
 
 
 # ボタンを配置
 if st.button(
-    "シミュレーションを実行", type="primary", use_container_width=True, icon="💻"
+    lang_dict[lang_code]["simulation_button"],
+    type="primary",
+    use_container_width=True,
+    icon="💻",
 ):
     simulation()
-
