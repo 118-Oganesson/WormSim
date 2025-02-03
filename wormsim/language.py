@@ -5,7 +5,7 @@ language = {
         "paper_reference": """Hironaka, M., & Sumi, T. (2024). *A neural network model that generates salt concentration memory-dependent chemotaxis in Caenorhabditis elegans*. [DOI: 10.1101/2024.11.04.621960](https://doi.org/10.1101/2024.11.04.621960)""",
         "usage_info": """使用方法
 1. 下のタブから、線虫の個体や塩濃度関数を選択します。
-2. 必要に応じて塩濃度などのパラメータを調整します。  
+2. 必要に応じてパラメータを調整します。  
 3. [シミュレーションを実行]を押すことで、アニメーションが表示されます。""",
         "simulation_environment": ":red-background[シミュレーション環境]（パラメータの変更がリアルタイムで反映されます。）",
         "tab_names": ["線虫の個体", "塩濃度関数", "その他の設定"],
@@ -51,11 +51,11 @@ language = {
     },
     "en": {
         "title": "*C. elegans* Simulator",
-        "description": """This *C. elegans* simulator was created to reproduce the salt concentration memory-dependent chemotaxis exhibited by *Caenorhabditis elegans*. The model is based on the following paper:""",
+        "description": """This *C. elegans* simulator was developed to reproduce the salt concentration memory-dependent chemotaxis exhibited by *Caenorhabditis elegans*. The model is based on the following paper:""",
         "paper_reference": """Hironaka, M., & Sumi, T. (2024). *A neural network model that generates salt concentration memory-dependent chemotaxis in Caenorhabditis elegans*. [DOI: 10.1101/2024.11.04.621960](https://doi.org/10.1101/2024.11.04.621960)""",
         "usage_info": """How to Use:
 1. Select the *C. elegans* individual and salt concentration function from the tabs below.
-2. Adjust parameters such as salt concentration as needed.  
+2. Change the parameters.  
 3. Click [Run Simulation] to display the animation.""",
         "simulation_environment": ":red-background[Simulation Environment] (Parameter changes are reflected in real-time.)",
         "tab_names": [
@@ -65,10 +65,10 @@ language = {
         ],
         "select_worm_label": "Select a *C. elegans* individual.",
         "select_worm_options": [
-            "Individual raised in high-salt environment",
-            "Individual raised in low-salt environment",
-            "Individual raised in high-salt environment (starvation)",
-            "Individual raised in low-salt environment (starvation)",
+            "Individual cultivated in high-salt environment",
+            "Individual cultivated in low-salt environment",
+            "Individual cultivated in high-salt environment (starvation)",
+            "Individual cultivated in low-salt environment (starvation)",
         ],
         "select_worm_help": "*C. elegans* exhibits preference behavior based on the salt concentration it memorized during cultivation.",
         "neural_circuit": "Neural Circuit:",
