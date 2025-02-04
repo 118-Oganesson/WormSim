@@ -1,6 +1,6 @@
 # 線虫シミュレーター
 
-この線虫シミュレーターは、*Caenorhabditis elegans*（*C. elegans*）が示す塩濃度記憶に依存した塩走性を再現するために作成されました。モデルは以下の論文に基づき構築されています。
+この[線虫シミュレーター](https://wormsim.streamlit.app/)は、*Caenorhabditis elegans*（*C. elegans*）が示す塩濃度記憶に依存した塩走性を再現するために作成されました。モデルは以下の論文に基づき構築されています。
 
 **参考論文**:  
 Hironaka, M., & Sumi, T. (2024). *A neural network model that generates salt concentration memory-dependent chemotaxis in Caenorhabditis elegans*.  
@@ -23,7 +23,7 @@ Hironaka, M., & Sumi, T. (2024). *A neural network model that generates salt con
 
 # *C. elegans* Simulator  
 
-This *Caenorhabditis elegans* (*C. elegans*) simulator was developed to reproduce salt chemotaxis behavior based on salt concentration memory. The model is built upon the following research paper:  
+This [*Caenorhabditis elegans* (*C. elegans*) simulator](https://wormsim.streamlit.app/) was developed to reproduce salt chemotaxis behavior based on salt concentration memory. The model is built upon the following research paper:  
 
 **Reference Paper:**  
 Hironaka, M., & Sumi, T. (2024). *A neural network model that generates salt concentration memory-dependent chemotaxis in Caenorhabditis elegans*.  
