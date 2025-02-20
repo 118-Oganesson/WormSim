@@ -2,7 +2,7 @@ language = {
     "ja": {
         "title": "線虫シミュレーター",
         "description": """この線虫シミュレーターは、*Caenorhabditis elegans*（*C. elegans*）が示す塩濃度記憶に依存した塩走性を再現するために作成されました。モデルは以下の論文に基づき構築されています。""",
-        "paper_reference": """Hironaka, M., & Sumi, T. (2024). *A neural network model that generates salt concentration memory-dependent chemotaxis in Caenorhabditis elegans*. [DOI: 10.1101/2024.11.04.621960](https://doi.org/10.1101/2024.11.04.621960)""",
+        "paper_reference": """Hironaka Masakatsu, Sumi Tomonari “A neural network model that generates salt concentration memory-dependent chemotaxis in *Caenorhabditis elegans*” *eLife* **14**:RP104456 (2025). [DOI: 10.7554/eLife.104456.1](https://doi.org/10.7554/eLife.104456.1)""",
         "usage_info": """使用方法
 1. 下のタブから、線虫の個体や塩濃度関数を選択します。
 2. 必要に応じてパラメータを調整します。  
@@ -52,7 +52,7 @@ language = {
     "en": {
         "title": "*C. elegans* Simulator",
         "description": """This *C. elegans* simulator was developed to reproduce the salt concentration memory-dependent chemotaxis exhibited by *Caenorhabditis elegans*. The model is based on the following paper:""",
-        "paper_reference": """Hironaka, M., & Sumi, T. (2024). *A neural network model that generates salt concentration memory-dependent chemotaxis in Caenorhabditis elegans*. [DOI: 10.1101/2024.11.04.621960](https://doi.org/10.1101/2024.11.04.621960)""",
+        "paper_reference": """Hironaka Masakatsu, Sumi Tomonari “A neural network model that generates salt concentration memory-dependent chemotaxis in *Caenorhabditis elegans*” *eLife* **14**:RP104456 (2025). [DOI: 10.7554/eLife.104456.1](https://doi.org/10.7554/eLife.104456.1)""",
         "usage_info": """How to Use:
 1. Select the *C. elegans* individual and salt concentration function from the tabs below.
 2. Change the parameters.  
