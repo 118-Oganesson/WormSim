@@ -1,11 +1,11 @@
 import wormsim_rs
 import numpy as np
-import plotly.io as pio
 import plotly.graph_objects as go
 from PIL import Image
 import base64
 import io
-
+import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
 
 class Worm:
     def __init__(self, gene, const, c_mode, concentration_map, using_rust=True):
@@ -253,8 +253,7 @@ class Worm:
         }.get(self.c_mode, self._c_gauss)
         return concentration(x, y)
 
-    def _save_concentration_map_as_base64(self):
-        """濃度マップを画像として保存し、Base64形式で返す"""
+    def _save_concentration_map_as_base64(self, dpi=100):
         x = np.linspace(
             self.concentration_x_range[0],
             self.concentration_x_range[1],
@@ -266,29 +265,25 @@ class Worm:
             num=self.concentration_num,
         )
         z = self._generate_concentration_map(x, y)
-        fig = go.Figure(
-            data=go.Heatmap(
-                z=z,
-                x=x,
-                y=y,
-                colorscale=self.color_scheme,
-                opacity=self.opacity,
-                colorbar=dict(ticks="", tickvals=[], ticktext=[], len=0),
-                showscale=False,
-            )
+
+        # 自作カラースキームを Matplotlib 用に変換
+        cmap = LinearSegmentedColormap.from_list("custom_cmap", self.color_scheme, N=256)
+
+        fig, ax = plt.subplots(
+            figsize=(self.concentration_num / dpi, self.concentration_num / dpi),
+            dpi=dpi,
         )
-        fig.update_layout(
-            width=self.concentration_num,
-            height=self.concentration_num,
-            margin=dict(l=0, r=0, t=0, b=0),
-            xaxis=dict(visible=False, showticklabels=False, zeroline=False),
-            yaxis=dict(visible=False, showticklabels=False, zeroline=False),
-            plot_bgcolor="rgba(0, 0, 0, 0)",
-            paper_bgcolor="rgba(0, 0, 0, 0)",
+        ax.imshow(z, cmap=cmap, origin="lower", aspect="auto")
+        ax.axis("off")
+
+        buf = io.BytesIO()
+        fig.savefig(
+            buf, format="png", bbox_inches="tight", pad_inches=0, transparent=True
         )
-        # Kaleido を明示して PNG バイト列に変換
-        img_bytes = pio.to_image(fig, format="png", engine="kaleido")
-        img_base64 = base64.b64encode(img_bytes).decode("utf-8")
+        plt.close(fig)
+        buf.seek(0)
+        img_base64 = base64.b64encode(buf.read()).decode("utf-8")
+        buf.close()
         return img_base64
 
     def _image_to_base64(self, image):
