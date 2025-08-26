@@ -364,6 +364,7 @@ class Worm:
                 y=self.concentration_y_range[1],
                 sizex=self.concentration_x_range[1] - self.concentration_x_range[0],
                 sizey=self.concentration_y_range[1] - self.concentration_y_range[0],
+                sizing="stretch",
                 opacity=1,
                 layer="below",
             )

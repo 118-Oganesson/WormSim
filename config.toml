@@ -120,7 +120,7 @@ c_mode = 1
 [concentration_map]
 concentration_x_range = [-15, 15]
 concentration_y_range = [-15, 15]
-concentration_num = 100
+concentration_num = 300
 color_scheme_blue = [
     "#ffffff",
     "#f7fbff",
