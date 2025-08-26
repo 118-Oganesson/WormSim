@@ -1,5 +1,6 @@
 import wormsim_rs
 import numpy as np
+import plotly.io as pio
 import plotly.graph_objects as go
 from PIL import Image
 import base64
@@ -285,11 +286,9 @@ class Worm:
             plot_bgcolor="rgba(0, 0, 0, 0)",
             paper_bgcolor="rgba(0, 0, 0, 0)",
         )
-        img_buffer = io.BytesIO()
-        fig.write_image(img_buffer, format="PNG")
-        img_buffer.seek(0)
-        img_base64 = base64.b64encode(img_buffer.read()).decode("utf-8")
-        img_buffer.close()
+        # Kaleido を明示して PNG バイト列に変換
+        img_bytes = pio.to_image(fig, format="png", engine="kaleido")
+        img_base64 = base64.b64encode(img_bytes).decode("utf-8")
         return img_base64
 
     def _image_to_base64(self, image):
