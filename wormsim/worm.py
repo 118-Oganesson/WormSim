@@ -623,14 +623,16 @@ class Worm:
                 colorscale=self.color_scheme,
                 opacity=self.opacity,
                 colorbar=dict(
-                    title="Concentration (mM)",
-                    titleside="bottom",
+                    title=dict(
+                        text="Concentration (mM)",
+                        side="bottom",
+                        font=dict(color="black"),
+                    ),
                     tickformat=".2f",
                     len=0.75,
                     tickfont=dict(color="black"),
-                    titlefont=dict(color="black"),
                     orientation="h",
-                    y=-0.4
+                    y=-0.4,
                 ),
                 showscale=True,
             )
