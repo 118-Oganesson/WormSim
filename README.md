@@ -21,3 +21,7 @@ Hironaka Masakatsu, Sumi Tomonari “A neural network model that generates salt 
 - **Streamlit**によって、入力や結果を簡単に操作できるシンプルなUIを搭載しました。
 
 線虫の行動メカニズムを視覚的に理解し、学術研究や教育、さらには遊び心のある実験に役立てることができます。ぜひお試しください！
+
+## English
+
+For English, please see [README_en.md](./README_en.md)
