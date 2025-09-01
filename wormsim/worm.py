@@ -7,6 +7,7 @@ import io
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 
+
 class Worm:
     def __init__(self, gene, const, c_mode, concentration_map, using_rust=True):
         self.gene = gene
@@ -227,22 +228,26 @@ class Worm:
         return r
 
     def klinotaxis_rs(self):
-        const = {
-            "alpha": self.alpha,
-            "c_0": self.c_0,
-            "lambda": self.lambda_,
-            "x_peak": self.x_peak,
-            "y_peak": self.y_peak,
-            "dt": self.dt,
-            "periodic_time": self.T,
-            "frequency": self.f,
-            "mu_0": self.mu_0,
-            "velocity": self.v,
-            "simulation_time": self.time,
-            "time_constant": self.tau,
-        }
+        # Geneオブジェクトに変換
+        gene_obj = wormsim_rs.Gene(gene=self.gene["gene"])
 
-        return wormsim_rs.klinotaxis(self.gene, const, self.c_mode)
+        # Constオブジェクトを作成
+        const = wormsim_rs.Const(
+            alpha=self.alpha,
+            c_0=self.c_0,
+            lambda_=self.lambda_,  # 注意: lambda_ に変更
+            x_peak=self.x_peak,
+            y_peak=self.y_peak,
+            dt=self.dt,
+            periodic_time=self.T,
+            frequency=self.f,
+            mu_0=self.mu_0,
+            velocity=self.v,
+            simulation_time=self.time,
+            time_constant=self.tau,
+        )
+
+        return wormsim_rs.klinotaxis(gene_obj, const, mode=self.c_mode)
 
     def _generate_concentration_map(self, x, y):
         x, y = np.meshgrid(x, y)
@@ -267,7 +272,9 @@ class Worm:
         z = self._generate_concentration_map(x, y)
 
         # 自作カラースキームを Matplotlib 用に変換
-        cmap = LinearSegmentedColormap.from_list("custom_cmap", self.color_scheme, N=256)
+        cmap = LinearSegmentedColormap.from_list(
+            "custom_cmap", self.color_scheme, N=256
+        )
 
         fig, ax = plt.subplots(
             figsize=(self.concentration_num / dpi, self.concentration_num / dpi),
